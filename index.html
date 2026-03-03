@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MineVerse – Yeraltından Dünyaya</title>
+  <meta name="description" content="Madencilik dünyasını küresel bir bakış açısıyla ele alan bağımsız dijital platform. Röportajlar, hikâyeler, videolar ve güncel sektör haberleri." />
+  <link rel="canonical" href="https://mineverse.com/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="MineVerse – Yeraltından Dünyaya" />
+  <meta property="og:description" content="Madencilik dünyasını küresel bir bakış açısıyla ele alan bağımsız dijital platform." />
+  <meta property="og:url" content="https://mineverse.com/" />
+  <meta property="og:image" content="https://mineverse.com/assets/img/og-home.jpg" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <a href="index.html" class="logo" aria-label="MineVerse Anasayfa">Mine<span>Verse</span></a>
+
+      <nav class="nav-desktop" aria-label="Ana menü">
+        <a href="index.html" data-nav-link>Anasayfa</a>
+        <a href="posts.html" data-nav-link>İçerikler</a>
+        <a href="videos.html" data-nav-link>Videolar</a>
+        <a href="about.html" data-nav-link>Hakkımızda</a>
+        <a href="newsletter.html" data-nav-link>Bülten</a>
+        <a href="contact.html" data-nav-link>İletişim</a>
+      </nav>
+
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menüyü aç" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Nav -->
+  <nav class="nav-mobile" id="nav-mobile" aria-label="Mobil menü">
+    <button class="nav-mobile-close" id="nav-mobile-close" aria-label="Menüyü kapat">&times;</button>
+    <a href="index.html" data-nav-link>Anasayfa</a>
+    <a href="posts.html" data-nav-link>İçerikler</a>
+    <a href="videos.html" data-nav-link>Videolar</a>
+    <a href="about.html" data-nav-link>Hakkımızda</a>
+    <a href="newsletter.html" data-nav-link>Bülten</a>
+    <a href="contact.html" data-nav-link>İletişim</a>
+  </nav>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <main>
+
+    <!-- Hero -->
+    <section class="hero" aria-label="Karşılama bölümü">
+      <div class="hero-bg">
+        <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1400&h=700&fit=crop" alt="Madencilik sahası" loading="eager" />
+      </div>
+      <div class="container hero-content">
+        <p class="hero-tagline">Yeraltından Dünyaya</p>
+        <h1>Madenciliği Keşfet,<br>Hikâyelere Kulak Ver</h1>
+        <p>Madencilik dünyasını küresel bir bakış açısıyla ele alan bağımsız dijital platform. Röportajlar, hikâyeler, videolar ve güncel sektör haberleri.</p>
+        <div class="hero-actions">
+          <a href="posts.html" class="btn btn-primary btn-lg">İçerikleri Keşfet</a>
+          <a href="newsletter.html" class="btn btn-secondary btn-lg">Bültene Katıl</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Post -->
+    <section class="section home-section" aria-labelledby="featured-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 id="featured-heading">Öne Çıkan İçerik</h2>
+            <p>Editör seçimi en güncel içerik</p>
+          </div>
+        </div>
+        <div class="grid" id="featured-posts"></div>
+      </div>
+    </section>
+
+    <!-- Interviews -->
+    <section class="section home-section" aria-labelledby="interview-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 id="interview-heading">Son Röportajlar</h2>
+            <p>Sektör profesyonelleri ve akademisyenlerle söyleşiler</p>
+          </div>
+          <a href="posts.html?category=interview" class="btn btn-ghost btn-sm">Tümünü Gör →</a>
+        </div>
+        <div class="grid grid-3" id="interview-posts"></div>
+      </div>
+    </section>
+
+    <!-- Stories -->
+    <section class="section home-section" aria-labelledby="story-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 id="story-heading">Dünyadan Hikâyeler</h2>
+            <p>İlginç ve öğretici madencilik hikâyeleri dünyanın dört bir yanından</p>
+          </div>
+          <a href="posts.html?category=story" class="btn btn-ghost btn-sm">Tümünü Gör →</a>
+        </div>
+        <div class="grid grid-3" id="story-posts"></div>
+      </div>
+    </section>
+
+    <!-- Updates -->
+    <section class="section home-section" aria-labelledby="update-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 id="update-heading">Güncel Paylaşımlar</h2>
+            <p>Sektörden son gelişmeler ve haberler</p>
+          </div>
+          <a href="posts.html?category=update" class="btn btn-ghost btn-sm">Tümünü Gör →</a>
+        </div>
+        <div class="grid grid-3" id="update-posts"></div>
+      </div>
+    </section>
+
+    <!-- Videos -->
+    <section class="section home-section" aria-labelledby="video-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 id="video-heading">Video İçerikler</h2>
+            <p>Madencilik odaklı video içerikler</p>
+          </div>
+          <a href="videos.html" class="btn btn-ghost btn-sm">Tümünü Gör →</a>
+        </div>
+        <div class="grid grid-3" id="video-posts"></div>
+      </div>
+    </section>
+
+    <!-- Newsletter CTA -->
+    <section class="section" aria-labelledby="cta-heading">
+      <div class="container">
+        <div class="cta-block">
+          <h2 id="cta-heading">Yeraltından Haberleri Kaçırma</h2>
+          <p>Yeni içeriklerden, röportajlardan ve sektör gelişmelerinden haberdar olmak için bültenimize katılın.</p>
+          <a href="newsletter.html" class="btn btn-primary btn-lg">Bültene Katıl</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">Mine<span>Verse</span></a>
+          <p>Madencilik dünyasını küresel bir bakış açısıyla ele alan bağımsız dijital platform.</p>
+        </div>
+        <div>
+          <h4 class="footer-heading">Sayfalar</h4>
+          <div class="footer-links">
+            <a href="posts.html">İçerikler</a>
+            <a href="videos.html">Videolar</a>
+            <a href="about.html">Hakkımızda</a>
+            <a href="contact.html">İletişim</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-heading">Kategoriler</h4>
+          <div class="footer-links">
+            <a href="posts.html?category=interview">Röportajlar</a>
+            <a href="posts.html?category=story">Hikâyeler</a>
+            <a href="posts.html?category=news">Haberler</a>
+            <a href="posts.html?category=update">Güncel</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-heading">Bülten</h4>
+          <p class="text-sm text-muted mb-4">Yeni içeriklerden haberdar olun.</p>
+          <form class="footer-newsletter-form" id="footer-newsletter-form">
+            <input type="email" placeholder="E-posta adresiniz" required aria-label="E-posta adresi" />
+            <button type="submit" class="btn btn-primary btn-sm">Katıl</button>
+          </form>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MineVerse. Tüm hakları saklıdır.</p>
+        <div class="social-links">
+          <a href="https://twitter.com/mineverse" target="_blank" rel="noopener" aria-label="Twitter">𝕏</a>
+          <a href="https://linkedin.com/company/mineverse" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>
+          <a href="https://youtube.com/@mineverse" target="_blank" rel="noopener" aria-label="YouTube">▶</a>
+          <a href="https://instagram.com/mineverse" target="_blank" rel="noopener" aria-label="Instagram">📷</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/mockData.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/pages/home.js"></script>
+</body>
+</html>

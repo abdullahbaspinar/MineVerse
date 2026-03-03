@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>İletişim – MineVerse</title>
+  <meta name="description" content="MineVerse ile iletişime geçin. Öneri, işbirliği ve sorularınız için bize ulaşın." />
+  <link rel="canonical" href="https://mineverse.com/contact.html" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="İletişim – MineVerse" />
+  <meta property="og:description" content="MineVerse ile iletişime geçin." />
+  <meta property="og:url" content="https://mineverse.com/contact.html" />
+  <meta property="og:image" content="https://mineverse.com/assets/img/og-contact.jpg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <a href="index.html" class="logo" aria-label="MineVerse Anasayfa">Mine<span>Verse</span></a>
+      <nav class="nav-desktop" aria-label="Ana menü">
+        <a href="index.html" data-nav-link>Anasayfa</a>
+        <a href="posts.html" data-nav-link>İçerikler</a>
+        <a href="videos.html" data-nav-link>Videolar</a>
+        <a href="about.html" data-nav-link>Hakkımızda</a>
+        <a href="newsletter.html" data-nav-link>Bülten</a>
+        <a href="contact.html" data-nav-link>İletişim</a>
+      </nav>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menüyü aç" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+  <nav class="nav-mobile" id="nav-mobile" aria-label="Mobil menü">
+    <button class="nav-mobile-close" id="nav-mobile-close" aria-label="Menüyü kapat">&times;</button>
+    <a href="index.html" data-nav-link>Anasayfa</a>
+    <a href="posts.html" data-nav-link>İçerikler</a>
+    <a href="videos.html" data-nav-link>Videolar</a>
+    <a href="about.html" data-nav-link>Hakkımızda</a>
+    <a href="newsletter.html" data-nav-link>Bülten</a>
+    <a href="contact.html" data-nav-link>İletişim</a>
+  </nav>
+
+  <main>
+    <section class="section page-header">
+      <div class="container">
+        <h1>İletişim</h1>
+        <p>Sorularınız, önerileriniz veya işbirliği talepleriniz için bize ulaşın.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0">
+      <div class="container">
+        <div class="contact-grid">
+
+          <!-- Info column -->
+          <div class="contact-info">
+            <h2>Bize Ulaşın</h2>
+            <p>İçerik önerisi, röportaj talebi veya işbirliği için aşağıdaki kanallardan bize ulaşabilirsiniz.</p>
+
+            <div class="contact-channels">
+              <div class="contact-channel">
+                <div class="contact-channel-icon" aria-hidden="true">✉️</div>
+                <div>
+                  <strong>E-posta</strong><br>
+                  <a href="mailto:info@mineverse.com" style="color:var(--color-accent)">info@mineverse.com</a>
+                </div>
+              </div>
+              <div class="contact-channel">
+                <div class="contact-channel-icon" aria-hidden="true">𝕏</div>
+                <div>
+                  <strong>Twitter / X</strong><br>
+                  <a href="https://twitter.com/mineverse" target="_blank" rel="noopener" style="color:var(--color-accent)">@mineverse</a>
+                </div>
+              </div>
+              <div class="contact-channel">
+                <div class="contact-channel-icon" aria-hidden="true">in</div>
+                <div>
+                  <strong>LinkedIn</strong><br>
+                  <a href="https://linkedin.com/company/mineverse" target="_blank" rel="noopener" style="color:var(--color-accent)">MineVerse</a>
+                </div>
+              </div>
+              <div class="contact-channel">
+                <div class="contact-channel-icon" aria-hidden="true">▶</div>
+                <div>
+                  <strong>YouTube</strong><br>
+                  <a href="https://youtube.com/@mineverse" target="_blank" rel="noopener" style="color:var(--color-accent)">@mineverse</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form column -->
+          <div>
+            <form id="contact-form" novalidate>
+              <div class="form-group">
+                <label for="contact-name" class="form-label">Adınız</label>
+                <input type="text" id="contact-name" name="name" class="form-input" placeholder="Adınız Soyadınız" required />
+              </div>
+              <div class="form-group">
+                <label for="contact-email" class="form-label">E-posta</label>
+                <input type="email" id="contact-email" name="email" class="form-input" placeholder="ornek@email.com" required />
+              </div>
+              <div class="form-group">
+                <label for="contact-subject" class="form-label">Konu</label>
+                <select id="contact-subject" name="subject" class="form-select">
+                  <option value="general">Genel</option>
+                  <option value="content">İçerik Önerisi</option>
+                  <option value="interview">Röportaj Talebi</option>
+                  <option value="collaboration">İşbirliği</option>
+                  <option value="other">Diğer</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="contact-message" class="form-label">Mesajınız</label>
+                <textarea id="contact-message" name="message" class="form-textarea" placeholder="Mesajınızı buraya yazın..." required></textarea>
+              </div>
+
+              <div id="contact-msg" class="form-message hidden"></div>
+
+              <button type="submit" class="btn btn-primary btn-lg" style="width:100%">Gönder</button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">Mine<span>Verse</span></a>
+          <p>Madencilik dünyasını küresel bir bakış açısıyla ele alan bağımsız dijital platform.</p>
+        </div>
+        <div>
+          <h4 class="footer-heading">Sayfalar</h4>
+          <div class="footer-links">
+            <a href="posts.html">İçerikler</a>
+            <a href="videos.html">Videolar</a>
+            <a href="about.html">Hakkımızda</a>
+            <a href="contact.html">İletişim</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-heading">Kategoriler</h4>
+          <div class="footer-links">
+            <a href="posts.html?category=interview">Röportajlar</a>
+            <a href="posts.html?category=story">Hikâyeler</a>
+            <a href="posts.html?category=news">Haberler</a>
+            <a href="posts.html?category=update">Güncel</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="footer-heading">Bülten</h4>
+          <p class="text-sm text-muted mb-4">Yeni içeriklerden haberdar olun.</p>
+          <form class="footer-newsletter-form" id="footer-newsletter-form">
+            <input type="email" placeholder="E-posta adresiniz" required aria-label="E-posta adresi" />
+            <button type="submit" class="btn btn-primary btn-sm">Katıl</button>
+          </form>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MineVerse. Tüm hakları saklıdır.</p>
+        <div class="social-links">
+          <a href="https://twitter.com/mineverse" target="_blank" rel="noopener" aria-label="Twitter">𝕏</a>
+          <a href="https://linkedin.com/company/mineverse" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>
+          <a href="https://youtube.com/@mineverse" target="_blank" rel="noopener" aria-label="YouTube">▶</a>
+          <a href="https://instagram.com/mineverse" target="_blank" rel="noopener" aria-label="Instagram">📷</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/mockData.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/pages/contact.js"></script>
+</body>
+</html>
