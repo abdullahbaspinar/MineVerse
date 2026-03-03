@@ -70,7 +70,7 @@ button { cursor: pointer; }
   --z-toast:    500;
 
   /* ── Header height ── */
-  --header-h: 72px;
+  --header-h: 80px;
 
   /* ── Dark theme colors (default) ── */
   --color-bg:          #0a0a0a;
