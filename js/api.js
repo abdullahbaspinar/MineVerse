@@ -2,6 +2,7 @@
 
 const API = (() => {
   const CACHE_PREFIX = 'mv_cache_';
+  let _lastError = null;
 
   /* ── Cache helpers ── */
   function cacheGet(key) {
@@ -29,13 +30,8 @@ const API = (() => {
     return obj;
   }
 
-  /* ═══════════════ BASE QUERIES (single-field orderBy only) ═══════════════ */
+  /* ═══════════════ BASE QUERIES ═══════════════ */
 
-  /**
-   * Fetch all posts in one shot — sorted by publishedAt desc.
-   * Uses only orderBy (no where), so NO composite index required.
-   * All filtering (category, featured) is done client-side.
-   */
   async function fetchAllPosts() {
     const cacheKey = 'fs_all_posts';
     const cached = cacheGet(cacheKey);
@@ -45,14 +41,15 @@ const API = (() => {
       const snap = await db.collection('posts').orderBy('publishedAt', 'desc').get();
       const data = snap.docs.map(normalizeDoc);
       cacheSet(cacheKey, data);
+      _lastError = null;
       return data;
     } catch (err) {
       console.error('[API] fetchAllPosts:', err);
+      _lastError = err;
       return [];
     }
   }
 
-  /** Fetch a single post by slug (single where, no orderBy → no index needed) */
   async function fetchPostBySlug(slug) {
     const cacheKey = 'fs_post_' + slug;
     const cached = cacheGet(cacheKey);
@@ -66,11 +63,11 @@ const API = (() => {
       return result;
     } catch (err) {
       console.error('[API] fetchPostBySlug:', err);
+      _lastError = err;
       return null;
     }
   }
 
-  /** Fetch all videos — single orderBy, no composite index needed */
   async function fetchAllVideos() {
     const cacheKey = 'fs_all_videos';
     const cached = cacheGet(cacheKey);
@@ -80,14 +77,16 @@ const API = (() => {
       const snap = await db.collection('videos').orderBy('publishedAt', 'desc').get();
       const data = snap.docs.map(normalizeDoc);
       cacheSet(cacheKey, data);
+      _lastError = null;
       return data;
     } catch (err) {
       console.error('[API] fetchAllVideos:', err);
+      _lastError = err;
       return [];
     }
   }
 
-  /* ═══════════════ PUBLIC API (client-side filtering) ═══════════════ */
+  /* ═══════════════ PUBLIC API ═══════════════ */
 
   async function getFeaturedPosts(limit = 3) {
     const all = await fetchAllPosts();
@@ -114,6 +113,24 @@ const API = (() => {
     return all.slice(0, limit);
   }
 
+  async function getVideoBySlug(slug) {
+    const cacheKey = 'fs_video_' + slug;
+    const cached = cacheGet(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const snap = await db.collection('videos').where('slug', '==', slug).limit(1).get();
+      if (snap.empty) return null;
+      const result = normalizeDoc(snap.docs[0]);
+      cacheSet(cacheKey, result);
+      return result;
+    } catch (err) {
+      console.error('[API] getVideoBySlug:', err);
+      _lastError = err;
+      return null;
+    }
+  }
+
   async function searchPosts(query = '', category = 'all') {
     const all = await getPostsByCategory(category);
     if (!query.trim()) return all;
@@ -129,16 +146,18 @@ const API = (() => {
   async function getStories(limit = 4)    { return getPostsByCategory('story', limit); }
   async function getUpdates(limit = 4)    { return getPostsByCategory('update', limit); }
 
-  /** Clear all caches — useful when new content is added */
   function clearCache() {
     Object.keys(localStorage).forEach(key => {
       if (key.startsWith(CACHE_PREFIX)) localStorage.removeItem(key);
     });
   }
 
+  /** Returns the last Firestore error (if any) for debugging */
+  function getLastError() { return _lastError; }
+
   return {
     getFeaturedPosts, getRecentPosts, getPostsByCategory,
-    getPostBySlug, getVideos, searchPosts,
-    getInterviews, getStories, getUpdates, clearCache,
+    getPostBySlug, getVideos, getVideoBySlug, searchPosts,
+    getInterviews, getStories, getUpdates, clearCache, getLastError,
   };
 })();

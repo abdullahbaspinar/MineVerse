@@ -39,9 +39,14 @@ async function loadAllPosts() {
   try {
     postsState.all = await API.getPostsByCategory('all', 100);
     filterAndRender();
-  } catch {
+    const err = API.getLastError();
+    if (err && !postsState.all.length) {
+      const grid = document.getElementById('posts-grid');
+      if (grid) { grid.innerHTML = ''; grid.appendChild(Render.errorState('Firestore hatası: ' + (err.message || err))); }
+    }
+  } catch (e) {
     const grid = document.getElementById('posts-grid');
-    if (grid) { grid.innerHTML = ''; grid.appendChild(Render.errorState()); }
+    if (grid) { grid.innerHTML = ''; grid.appendChild(Render.errorState('Hata: ' + (e.message || e))); }
   }
 }
 

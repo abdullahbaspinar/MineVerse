@@ -3,6 +3,7 @@
 document.addEventListener('DOMContentLoaded', initVideosPage);
 
 async function initVideosPage() {
+  API.clearCache();
   const grid = document.getElementById('videos-grid');
   if (!grid) return;
 
@@ -13,13 +14,16 @@ async function initVideosPage() {
     grid.innerHTML = '';
 
     if (!videos.length) {
-      grid.appendChild(Render.emptyState('Henüz video içerik eklenmedi.'));
+      const err = API.getLastError();
+      grid.appendChild(Render.emptyState(err
+        ? 'Firestore hatası: ' + (err.message || err)
+        : 'Henüz video içerik eklenmedi.'));
       return;
     }
 
     videos.forEach(v => grid.appendChild(Render.videoGridItem(v)));
-  } catch {
+  } catch (e) {
     grid.innerHTML = '';
-    grid.appendChild(Render.errorState());
+    grid.appendChild(Render.errorState('Hata: ' + (e.message || e)));
   }
 }

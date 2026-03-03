@@ -160,10 +160,66 @@
 .page-header h1 { margin-bottom: var(--space-3); }
 .page-header p  { color: var(--color-text-muted); max-width: 540px; }
 
-/* ═══════════════ VIDEOS ═══════════════ */
+/* ═══════════════ VIDEOS – Grid listing ═══════════════ */
+.video-grid-item { cursor: pointer; }
 .video-grid-item .video-embed { margin-bottom: var(--space-4); }
 .video-grid-item h3 { font-size: var(--text-lg); margin-bottom: var(--space-2); }
 .video-grid-item .card-meta { margin-top: var(--space-2); }
+
+/* ═══════════════ VIDEO DETAIL PAGE ═══════════════ */
+.video-detail-section {
+  padding-top: var(--space-10);
+}
+
+.video-detail {
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+.video-detail-player {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: #000;
+}
+
+.video-detail-embed {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+}
+.video-detail-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.video-detail-info {
+  padding: var(--space-6) 0 var(--space-4);
+}
+.video-detail-info h1 {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-3);
+}
+@media (min-width: 768px) {
+  .video-detail-info h1 { font-size: var(--text-3xl); }
+  .video-detail-info { padding: var(--space-8) 0 var(--space-6); }
+}
+.video-detail-info .card-meta {
+  margin-bottom: var(--space-2);
+}
+
+.video-detail-description {
+  color: var(--color-text-muted);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+  white-space: pre-line;
+}
 
 /* ═══════════════ ABOUT ═══════════════ */
 .about-content {

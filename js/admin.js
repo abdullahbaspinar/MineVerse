@@ -45,7 +45,13 @@ const Admin = (() => {
       try {
         await auth.signInWithEmailAndPassword(email, password);
       } catch (err) {
-        errEl.textContent = authErrorMessage(err.code);
+        let msg = authErrorMessage(err.code);
+        if (err.code === 'auth/unauthorized-domain') {
+          msg = 'Bu domain Firebase\'de yetkilendirilmemiş. ' +
+            'Firebase Console → Authentication → Settings → Authorized domains ' +
+            'kısmına "' + window.location.hostname + '" ekleyin.';
+        }
+        errEl.textContent = msg;
         errEl.style.display = 'block';
       }
       btn.disabled = false;
@@ -62,8 +68,9 @@ const Admin = (() => {
       'auth/invalid-email': 'Geçersiz e-posta.',
       'auth/too-many-requests': 'Çok fazla deneme. Lütfen bekleyin.',
       'auth/invalid-credential': 'E-posta veya şifre hatalı.',
+      'auth/unauthorized-domain': 'Bu domain yetkilendirilmemiş. Firebase Console → Authentication → Settings → Authorized domains kısmına bu domaini ekleyin.',
     };
-    return map[code] || 'Giriş başarısız. Tekrar deneyin.';
+    return map[code] || 'Giriş başarısız (' + code + '). Tekrar deneyin.';
   }
 
   /* ═══════════════ NAVIGATION ═══════════════ */
@@ -210,11 +217,12 @@ const Admin = (() => {
       recentEl.innerHTML = '<p class="text-muted text-sm">Henüz içerik eklenmemiş. "İçerikler" bölümünden ilk içeriğinizi ekleyin.</p>';
     } else {
       recentEl.innerHTML = `<div class="admin-table-wrap"><table class="admin-table">
-        <thead><tr><th>Başlık</th><th>Kategori</th><th>Tarih</th></tr></thead>
+        <thead><tr><th>Başlık</th><th>Kategori</th><th>Tarih</th><th>Son Güncelleyen</th></tr></thead>
         <tbody>${recentPosts.map(p => `<tr>
           <td class="row-title">${esc(p.title)}</td>
           <td><span class="badge">${esc(p.category || '')}</span></td>
           <td>${fmtDate(p.publishedAt)}</td>
+          <td class="row-updated-by">${p.lastUpdatedBy ? esc(p.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
         </tr>`).join('')}</tbody></table></div>`;
     }
   }
@@ -222,11 +230,11 @@ const Admin = (() => {
   /* ═══════════════ POSTS CRUD ═══════════════ */
   async function loadPosts() {
     const container = document.getElementById('posts-table-body');
-    container.innerHTML = '<tr><td colspan="6" class="table-empty">Yükleniyor...</td></tr>';
+    container.innerHTML = '<tr><td colspan="7" class="table-empty">Yükleniyor...</td></tr>';
     try {
       const snap = await db.collection('posts').orderBy('createdAt', 'desc').get();
       if (snap.empty) {
-        container.innerHTML = '<tr><td colspan="6" class="table-empty">Henüz içerik yok. "Yeni İçerik" butonuna tıklayarak ekleyin.</td></tr>';
+        container.innerHTML = '<tr><td colspan="7" class="table-empty">Henüz içerik yok. "Yeni İçerik" butonuna tıklayarak ekleyin.</td></tr>';
         return;
       }
       container.innerHTML = snap.docs.map(doc => {
@@ -237,6 +245,7 @@ const Admin = (() => {
           <td><span class="badge">${esc(p.category || '')}</span></td>
           <td>${fmtDate(p.publishedAt)}</td>
           <td>${p.featured ? '<span style="color:var(--color-accent)">★</span>' : '—'}</td>
+          <td class="row-updated-by">${p.lastUpdatedBy ? esc(p.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
           <td class="row-actions">
             <button class="btn btn-xs btn-info" onclick="Admin.editPost('${doc.id}')">Düzenle</button>
             <button class="btn btn-xs btn-danger" onclick="Admin.deletePost('${doc.id}','${esc(p.title).replace(/'/g, "\\'")}')">Sil</button>
@@ -244,7 +253,7 @@ const Admin = (() => {
         </tr>`;
       }).join('');
     } catch (err) {
-      container.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:var(--color-error)">Hata: ${err.message}</td></tr>`;
+      container.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:var(--color-error)">Hata: ${err.message}</td></tr>`;
     }
   }
 
@@ -300,9 +309,11 @@ const Admin = (() => {
     if (!title) { toast('Başlık zorunludur.', 'error'); return; }
     if (!slug) { toast('Slug zorunludur.', 'error'); return; }
 
+    const currentUser = auth.currentUser;
     const data = {
       title, slug, excerpt, category, tags, coverImageUrl, body, publishedAt, featured,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      lastUpdatedBy: currentUser ? currentUser.email : 'bilinmiyor',
     };
 
     const btn = document.getElementById('save-post-btn');
@@ -349,11 +360,11 @@ const Admin = (() => {
   /* ═══════════════ VIDEOS CRUD ═══════════════ */
   async function loadVideos() {
     const container = document.getElementById('videos-table-body');
-    container.innerHTML = '<tr><td colspan="5" class="table-empty">Yükleniyor...</td></tr>';
+    container.innerHTML = '<tr><td colspan="6" class="table-empty">Yükleniyor...</td></tr>';
     try {
       const snap = await db.collection('videos').orderBy('createdAt', 'desc').get();
       if (snap.empty) {
-        container.innerHTML = '<tr><td colspan="5" class="table-empty">Henüz video yok. "Yeni Video" butonuna tıklayarak ekleyin.</td></tr>';
+        container.innerHTML = '<tr><td colspan="6" class="table-empty">Henüz video yok. "Yeni Video" butonuna tıklayarak ekleyin.</td></tr>';
         return;
       }
       container.innerHTML = snap.docs.map(doc => {
@@ -363,6 +374,7 @@ const Admin = (() => {
           <td class="row-title">${esc(v.title)}</td>
           <td>${fmtDate(v.publishedAt)}</td>
           <td>${v.featured ? '<span style="color:var(--color-accent)">★</span>' : '—'}</td>
+          <td class="row-updated-by">${v.lastUpdatedBy ? esc(v.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
           <td class="row-actions">
             <button class="btn btn-xs btn-info" onclick="Admin.editVideo('${doc.id}')">Düzenle</button>
             <button class="btn btn-xs btn-danger" onclick="Admin.deleteVideo('${doc.id}','${esc(v.title).replace(/'/g, "\\'")}')">Sil</button>
@@ -370,7 +382,7 @@ const Admin = (() => {
         </tr>`;
       }).join('');
     } catch (err) {
-      container.innerHTML = `<tr><td colspan="5" class="table-empty" style="color:var(--color-error)">Hata: ${err.message}</td></tr>`;
+      container.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:var(--color-error)">Hata: ${err.message}</td></tr>`;
     }
   }
 
@@ -387,6 +399,7 @@ const Admin = (() => {
       form.slug.value = videoData.slug || '';
       form.coverImageUrl.value = videoData.coverImageUrl || '';
       form.youtubeEmbed.value = videoData.youtubeEmbed || '';
+      form.description.value = videoData.description || '';
       form.publishedAt.value = fmtDateInput(videoData.publishedAt);
       form.featured.checked = !!videoData.featured;
       updateImagePreview('video-cover-preview', videoData.coverImageUrl);
@@ -412,14 +425,17 @@ const Admin = (() => {
     const slug = form.slug.value.trim() || slugify(title);
     const coverImageUrl = form.coverImageUrl.value.trim();
     const youtubeEmbed = form.youtubeEmbed.value.trim();
+    const description = form.description.value.trim();
     const publishedAt = form.publishedAt.value ? new Date(form.publishedAt.value) : new Date();
     const featured = form.featured.checked;
 
     if (!title) { toast('Başlık zorunludur.', 'error'); return; }
 
+    const currentUser = auth.currentUser;
     const data = {
-      title, slug, coverImageUrl, youtubeEmbed, publishedAt, featured,
+      title, slug, coverImageUrl, youtubeEmbed, description, publishedAt, featured,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      lastUpdatedBy: currentUser ? currentUser.email : 'bilinmiyor',
     };
 
     const btn = document.getElementById('save-video-btn');

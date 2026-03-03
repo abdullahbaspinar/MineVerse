@@ -9,16 +9,26 @@ const firebaseConfig = {
   appId: "1:704146672803:web:9bbedcf564873811178316"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+let db;
+
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+} catch (err) {
+  console.error('[Firebase] Initialization failed:', err);
+  document.addEventListener('DOMContentLoaded', () => {
+    const banner = document.createElement('div');
+    banner.style.cssText =
+      'position:fixed;top:0;left:0;right:0;z-index:9999;background:#b00020;color:#fff;padding:16px;text-align:center;font-size:14px;';
+    banner.textContent = 'Firebase başlatma hatası: ' + err.message;
+    document.body.appendChild(banner);
+  });
+}
 
 const FirebaseHelper = (() => {
 
-  /**
-   * Newsletter abonesini Firestore'a kaydet.
-   * Koleksiyon: newsletter_subscribers
-   */
   async function addSubscriber(email) {
+    if (!db) return { success: false, error: 'Firebase bağlantısı yok' };
     try {
       const snapshot = await db.collection('newsletter_subscribers')
         .where('email', '==', email)
@@ -40,11 +50,8 @@ const FirebaseHelper = (() => {
     }
   }
 
-  /**
-   * İletişim formu verisini Firestore'a kaydet.
-   * Koleksiyon: contact_messages
-   */
   async function addContactMessage({ name, email, subject, message }) {
+    if (!db) return { success: false, error: 'Firebase bağlantısı yok' };
     try {
       await db.collection('contact_messages').add({
         name,

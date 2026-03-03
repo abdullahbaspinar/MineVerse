@@ -113,6 +113,7 @@ const Render = (() => {
   }
 
   function videoCard(video) {
+    const slug = video.slug?.current || video.slug || '';
     const el = document.createElement('article');
     el.className = 'card card-video fade-in';
     el.style.cursor = 'pointer';
@@ -127,14 +128,18 @@ const Render = (() => {
         </div>
       </div>
     `;
-    el.addEventListener('click', () => { window.location.href = 'videos.html'; });
+    el.addEventListener('click', () => {
+      window.location.href = 'video.html?slug=' + encodeURIComponent(slug);
+    });
     return el;
   }
 
-  /** Render video with embed for videos page */
+  /** Render video card for grid listing – links to detail page */
   function videoGridItem(video) {
+    const slug = video.slug?.current || video.slug || '';
     const el = document.createElement('article');
     el.className = 'video-grid-item fade-in';
+    el.style.cursor = 'pointer';
     el.innerHTML = `
       <div class="video-embed">${sanitizeEmbed(video.youtubeEmbed)}</div>
       <h3>${escapeHtml(video.title)}</h3>
@@ -142,6 +147,9 @@ const Render = (() => {
         <time datetime="${video.publishedAt}">${formatDate(video.publishedAt)}</time>
       </div>
     `;
+    el.addEventListener('click', () => {
+      window.location.href = 'video.html?slug=' + encodeURIComponent(slug);
+    });
     return el;
   }
 
