@@ -1,4 +1,4 @@
-/* api.js – Firestore data fetching with caching */
+/* api.js – Firestore data fetching with caching (no composite index needed) */
 
 const API = (() => {
   const CACHE_PREFIX = 'mv_cache_';
@@ -16,7 +16,7 @@ const API = (() => {
 
   function cacheSet(key, data) {
     try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ data, ts: Date.now() })); }
-    catch { /* storage full */ }
+    catch { /* quota exceeded */ }
   }
 
   /* ── Firestore doc → plain object ── */
@@ -29,76 +29,89 @@ const API = (() => {
     return obj;
   }
 
-  /* ═══════════════ FIRESTORE QUERIES ═══════════════ */
+  /* ═══════════════ BASE QUERIES (single-field orderBy only) ═══════════════ */
 
-  async function queryPosts(opts = {}) {
-    const { category, featured, slug, limit: lim } = opts;
-    const cacheKey = `fs_${category||'all'}_${featured||''}_${slug||''}_${lim||50}`;
+  /**
+   * Fetch all posts in one shot — sorted by publishedAt desc.
+   * Uses only orderBy (no where), so NO composite index required.
+   * All filtering (category, featured) is done client-side.
+   */
+  async function fetchAllPosts() {
+    const cacheKey = 'fs_all_posts';
     const cached = cacheGet(cacheKey);
     if (cached) return cached;
 
     try {
-      let ref = db.collection('posts');
-
-      if (slug) {
-        const snap = await ref.where('slug', '==', slug).limit(1).get();
-        if (snap.empty) return null;
-        const result = normalizeDoc(snap.docs[0]);
-        cacheSet(cacheKey, result);
-        return result;
-      }
-
-      if (featured) ref = ref.where('featured', '==', true);
-      if (category && category !== 'all') ref = ref.where('category', '==', category);
-      ref = ref.orderBy('publishedAt', 'desc');
-      if (lim) ref = ref.limit(lim);
-
-      const snap = await ref.get();
+      const snap = await db.collection('posts').orderBy('publishedAt', 'desc').get();
       const data = snap.docs.map(normalizeDoc);
       cacheSet(cacheKey, data);
       return data;
     } catch (err) {
-      console.error('[API]', err);
+      console.error('[API] fetchAllPosts:', err);
       return [];
     }
   }
 
-  async function queryVideos(lim = 20) {
-    const cacheKey = `fs_videos_${lim}`;
+  /** Fetch a single post by slug (single where, no orderBy → no index needed) */
+  async function fetchPostBySlug(slug) {
+    const cacheKey = 'fs_post_' + slug;
     const cached = cacheGet(cacheKey);
     if (cached) return cached;
 
     try {
-      const snap = await db.collection('videos').orderBy('publishedAt', 'desc').limit(lim).get();
+      const snap = await db.collection('posts').where('slug', '==', slug).limit(1).get();
+      if (snap.empty) return null;
+      const result = normalizeDoc(snap.docs[0]);
+      cacheSet(cacheKey, result);
+      return result;
+    } catch (err) {
+      console.error('[API] fetchPostBySlug:', err);
+      return null;
+    }
+  }
+
+  /** Fetch all videos — single orderBy, no composite index needed */
+  async function fetchAllVideos() {
+    const cacheKey = 'fs_all_videos';
+    const cached = cacheGet(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const snap = await db.collection('videos').orderBy('publishedAt', 'desc').get();
       const data = snap.docs.map(normalizeDoc);
       cacheSet(cacheKey, data);
       return data;
     } catch (err) {
-      console.error('[API]', err);
+      console.error('[API] fetchAllVideos:', err);
       return [];
     }
   }
 
-  /* ═══════════════ PUBLIC API ═══════════════ */
+  /* ═══════════════ PUBLIC API (client-side filtering) ═══════════════ */
 
   async function getFeaturedPosts(limit = 3) {
-    return (await queryPosts({ featured: true, limit })) || [];
+    const all = await fetchAllPosts();
+    return all.filter(p => p.featured).slice(0, limit);
   }
 
   async function getRecentPosts(limit = 6) {
-    return (await queryPosts({ limit })) || [];
+    const all = await fetchAllPosts();
+    return all.slice(0, limit);
   }
 
   async function getPostsByCategory(category = 'all', limit = 50) {
-    return (await queryPosts({ category, limit })) || [];
+    const all = await fetchAllPosts();
+    if (category === 'all') return all.slice(0, limit);
+    return all.filter(p => p.category === category).slice(0, limit);
   }
 
   async function getPostBySlug(slug) {
-    return await queryPosts({ slug });
+    return await fetchPostBySlug(slug);
   }
 
   async function getVideos(limit = 20) {
-    return (await queryVideos(limit)) || [];
+    const all = await fetchAllVideos();
+    return all.slice(0, limit);
   }
 
   async function searchPosts(query = '', category = 'all') {
@@ -116,9 +129,16 @@ const API = (() => {
   async function getStories(limit = 4)    { return getPostsByCategory('story', limit); }
   async function getUpdates(limit = 4)    { return getPostsByCategory('update', limit); }
 
+  /** Clear all caches — useful when new content is added */
+  function clearCache() {
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith(CACHE_PREFIX)) localStorage.removeItem(key);
+    });
+  }
+
   return {
     getFeaturedPosts, getRecentPosts, getPostsByCategory,
     getPostBySlug, getVideos, searchPosts,
-    getInterviews, getStories, getUpdates,
+    getInterviews, getStories, getUpdates, clearCache,
   };
 })();

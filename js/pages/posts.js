@@ -11,6 +11,7 @@ let postsState = {
 };
 
 async function initPostsPage() {
+  API.clearCache();
   const grid = document.getElementById('posts-grid');
   const searchInput = document.getElementById('posts-search');
   const filterChips = document.getElementById('filter-chips');
