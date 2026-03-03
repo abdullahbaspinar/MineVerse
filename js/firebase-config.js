@@ -20,7 +20,7 @@ try {
     const banner = document.createElement('div');
     banner.style.cssText =
       'position:fixed;top:0;left:0;right:0;z-index:9999;background:#b00020;color:#fff;padding:16px;text-align:center;font-size:14px;';
-    banner.textContent = 'Firebase başlatma hatası: ' + err.message;
+    banner.textContent = 'Sistem bağlantısı kurulamadı. Lütfen daha sonra tekrar deneyin.';
     document.body.appendChild(banner);
   });
 }

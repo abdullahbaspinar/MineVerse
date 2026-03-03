@@ -29,6 +29,7 @@ const Admin = (() => {
     setupForgotPassword();
     setupNavigation();
     setupMobileMenu();
+    setupEventDelegation();
   }
 
   /* ═══════════════ AUTH ═══════════════ */
@@ -138,6 +139,7 @@ const Admin = (() => {
 
     document.getElementById('admin-page-title').textContent = sectionTitle(name);
     document.getElementById('admin-sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay')?.classList.remove('open');
 
     if (name === 'dashboard') loadDashboard();
     else if (name === 'posts') { hidePostForm(); loadPosts(); }
@@ -152,8 +154,58 @@ const Admin = (() => {
   }
 
   function setupMobileMenu() {
+    const sidebar = document.getElementById('admin-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    function openSidebar() {
+      sidebar?.classList.add('open');
+      overlay?.classList.add('open');
+    }
+    function closeSidebar() {
+      sidebar?.classList.remove('open');
+      overlay?.classList.remove('open');
+    }
+
     document.getElementById('mobile-menu-toggle')?.addEventListener('click', () => {
-      document.getElementById('admin-sidebar').classList.toggle('open');
+      if (sidebar?.classList.contains('open')) closeSidebar();
+      else openSidebar();
+    });
+    overlay?.addEventListener('click', closeSidebar);
+  }
+
+  function setupEventDelegation() {
+    const content = document.querySelector('.admin-content');
+    if (!content) return;
+    content.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      e.preventDefault();
+      const { action, id, title } = btn.dataset;
+      const readVal = btn.dataset.read;
+      switch (action) {
+        case 'edit-post': editPost(id); break;
+        case 'delete-post': deletePost(id, title); break;
+        case 'edit-video': editVideo(id); break;
+        case 'delete-video': deleteVideo(id, title); break;
+        case 'delete-subscriber': deleteSubscriber(id); break;
+        case 'toggle-read': toggleReadMessage(id, readVal === 'true'); break;
+        case 'delete-message': deleteMessage(id); break;
+        case 'new-post': editingPostId = null; showPostForm(); break;
+        case 'new-video': editingVideoId = null; showVideoForm(); break;
+        case 'export-subs': exportSubscribers(); break;
+      }
+    });
+
+    const formArea = document.querySelector('.admin-content');
+    formArea.addEventListener('submit', (e) => {
+      const form = e.target;
+      if (form.id === 'post-form') { e.preventDefault(); savePost(); }
+      else if (form.id === 'video-form') { e.preventDefault(); saveVideo(); }
+    });
+
+    formArea.addEventListener('click', (e) => {
+      if (e.target.matches('[data-cancel="post"]')) { hidePostForm(); }
+      else if (e.target.matches('[data-cancel="video"]')) { hideVideoForm(); }
     });
   }
 
@@ -291,13 +343,13 @@ const Admin = (() => {
           <td>${p.featured ? '<span style="color:var(--color-accent)">★</span>' : '—'}</td>
           <td class="row-updated-by">${p.lastUpdatedBy ? esc(p.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
           <td class="row-actions">
-            <button class="btn btn-xs btn-info" onclick="Admin.editPost('${doc.id}')">Düzenle</button>
-            <button class="btn btn-xs btn-danger" onclick="Admin.deletePost('${doc.id}','${esc(p.title).replace(/'/g, "\\'")}')">Sil</button>
+            <button class="btn btn-xs btn-info" data-action="edit-post" data-id="${esc(doc.id)}">Düzenle</button>
+            <button class="btn btn-xs btn-danger" data-action="delete-post" data-id="${esc(doc.id)}" data-title="${esc(p.title)}">Sil</button>
           </td>
         </tr>`;
       }).join('');
     } catch (err) {
-      container.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:var(--color-error)">Hata: ${err.message}</td></tr>`;
+      container.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:var(--color-error)">Hata: ${esc(err.message)}</td></tr>`;
     }
   }
 
@@ -420,13 +472,13 @@ const Admin = (() => {
           <td>${v.featured ? '<span style="color:var(--color-accent)">★</span>' : '—'}</td>
           <td class="row-updated-by">${v.lastUpdatedBy ? esc(v.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
           <td class="row-actions">
-            <button class="btn btn-xs btn-info" onclick="Admin.editVideo('${doc.id}')">Düzenle</button>
-            <button class="btn btn-xs btn-danger" onclick="Admin.deleteVideo('${doc.id}','${esc(v.title).replace(/'/g, "\\'")}')">Sil</button>
+            <button class="btn btn-xs btn-info" data-action="edit-video" data-id="${esc(doc.id)}">Düzenle</button>
+            <button class="btn btn-xs btn-danger" data-action="delete-video" data-id="${esc(doc.id)}" data-title="${esc(v.title)}">Sil</button>
           </td>
         </tr>`;
       }).join('');
     } catch (err) {
-      container.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:var(--color-error)">Hata: ${err.message}</td></tr>`;
+      container.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:var(--color-error)">Hata: ${esc(err.message)}</td></tr>`;
     }
   }
 
@@ -538,12 +590,12 @@ const Admin = (() => {
           <td>${esc(s.email)}</td>
           <td>${fmtDate(s.subscribedAt)}</td>
           <td class="row-actions">
-            <button class="btn btn-xs btn-danger" onclick="Admin.deleteSubscriber('${doc.id}')">Sil</button>
+            <button class="btn btn-xs btn-danger" data-action="delete-subscriber" data-id="${esc(doc.id)}">Sil</button>
           </td>
         </tr>`;
       }).join('');
     } catch (err) {
-      container.innerHTML = `<tr><td colspan="3" class="table-empty" style="color:var(--color-error)">Hata: ${err.message}</td></tr>`;
+      container.innerHTML = `<tr><td colspan="3" class="table-empty" style="color:var(--color-error)">Hata: ${esc(err.message)}</td></tr>`;
     }
   }
 
@@ -598,13 +650,13 @@ const Admin = (() => {
           <div class="msg-card-meta">${esc(m.email)} · ${esc(m.subject || 'Genel')}</div>
           <div class="msg-card-body">${esc(m.message)}</div>
           <div class="msg-card-actions">
-            <button class="btn btn-xs ${m.read ? 'btn-ghost' : 'btn-success'}" onclick="Admin.toggleReadMessage('${doc.id}', ${!m.read})">${m.read ? 'Okunmadı Yap' : 'Okundu Yap'}</button>
-            <button class="btn btn-xs btn-danger" onclick="Admin.deleteMessage('${doc.id}')">Sil</button>
+            <button class="btn btn-xs ${m.read ? 'btn-ghost' : 'btn-success'}" data-action="toggle-read" data-id="${esc(doc.id)}" data-read="${!m.read}">${m.read ? 'Okunmadı Yap' : 'Okundu Yap'}</button>
+            <button class="btn btn-xs btn-danger" data-action="delete-message" data-id="${esc(doc.id)}">Sil</button>
           </div>
         </div>`;
       }).join('');
     } catch (err) {
-      container.innerHTML = `<p style="color:var(--color-error)">Hata: ${err.message}</p>`;
+      container.innerHTML = `<p style="color:var(--color-error)">Hata: ${esc(err.message)}</p>`;
     }
   }
 

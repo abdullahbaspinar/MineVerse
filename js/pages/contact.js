@@ -11,13 +11,25 @@ function initContact() {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = new FormData(form);
-    const name = data.get('name');
-    const email = data.get('email');
+    const name = (data.get('name') || '').trim();
+    const email = (data.get('email') || '').trim();
     const subject = data.get('subject');
-    const message = data.get('message');
+    const message = (data.get('message') || '').trim();
 
     if (!name || !email || !message) {
       showMessage(msgEl, 'Lütfen tüm alanları doldurun.', false);
+      return;
+    }
+    if (name.length > 100 || email.length > 254 || message.length > 5000) {
+      showMessage(msgEl, 'Girdi uzunluk sınırını aşıyor.', false);
+      return;
+    }
+    if (!isValidEmail(email)) {
+      showMessage(msgEl, 'Geçerli bir e-posta adresi girin.', false);
+      return;
+    }
+    if (!RateLimiter.check('contact_form', 15000)) {
+      showMessage(msgEl, 'Lütfen biraz bekleyip tekrar deneyin.', false);
       return;
     }
 

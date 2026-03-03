@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin.html
+Disallow: /js/admin.js
+Disallow: /js/firebase-config.js
+
+Sitemap: https://mineverse.com/sitemap.xml

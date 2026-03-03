@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel – MineVerse</title>
   <meta name="robots" content="noindex, nofollow" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://cdn.quilljs.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com https://cdn.quilljs.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src 'self'; connect-src 'self' https://firestore.googleapis.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; object-src 'none'; base-uri 'self';" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -47,6 +50,9 @@
 
   <!-- ═══════════ ADMIN APP ═══════════ -->
   <div class="admin-shell hidden" id="admin-app">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
     <!-- Sidebar -->
     <aside class="admin-sidebar" id="admin-sidebar">
@@ -130,7 +136,7 @@
           <div id="posts-list-view">
             <div class="section-toolbar">
               <h2>İçerikler</h2>
-              <button class="btn btn-primary btn-sm" onclick="Admin.showPostForm()">+ Yeni İçerik</button>
+              <button class="btn btn-primary btn-sm" data-action="new-post">+ Yeni İçerik</button>
             </div>
             <div class="admin-table-wrap">
               <table class="admin-table">
@@ -158,7 +164,7 @@
               <h2 id="post-form-title">Yeni İçerik</h2>
             </div>
             <div class="admin-form">
-              <form id="post-form" onsubmit="event.preventDefault(); Admin.savePost();">
+              <form id="post-form">
                 <div class="form-row">
                   <div class="form-group">
                     <label for="post-title" class="form-label">Başlık *</label>
@@ -220,7 +226,7 @@
 
                 <div class="form-actions">
                   <button type="submit" id="save-post-btn" class="btn btn-primary">Kaydet</button>
-                  <button type="button" class="btn btn-ghost" onclick="Admin.cancelPostForm()">İptal</button>
+                  <button type="button" class="btn btn-ghost" data-cancel="post">İptal</button>
                 </div>
               </form>
             </div>
@@ -234,7 +240,7 @@
           <div id="videos-list-view">
             <div class="section-toolbar">
               <h2>Videolar</h2>
-              <button class="btn btn-primary btn-sm" onclick="Admin.showVideoForm()">+ Yeni Video</button>
+              <button class="btn btn-primary btn-sm" data-action="new-video">+ Yeni Video</button>
             </div>
             <div class="admin-table-wrap">
               <table class="admin-table">
@@ -261,7 +267,7 @@
               <h2 id="video-form-title">Yeni Video</h2>
             </div>
             <div class="admin-form">
-              <form id="video-form" onsubmit="event.preventDefault(); Admin.saveVideo();">
+              <form id="video-form">
                 <div class="form-row">
                   <div class="form-group">
                     <label for="video-title" class="form-label">Başlık *</label>
@@ -304,7 +310,7 @@
 
                 <div class="form-actions">
                   <button type="submit" id="save-video-btn" class="btn btn-primary">Kaydet</button>
-                  <button type="button" class="btn btn-ghost" onclick="Admin.cancelVideoForm()">İptal</button>
+                  <button type="button" class="btn btn-ghost" data-cancel="video">İptal</button>
                 </div>
               </form>
             </div>
@@ -315,7 +321,7 @@
         <section class="admin-section hidden" id="section-subscribers">
           <div class="section-toolbar">
             <h2>Aboneler <small class="text-muted text-sm" id="subs-count"></small></h2>
-            <button class="btn btn-secondary btn-sm" onclick="Admin.exportSubscribers()">CSV İndir</button>
+            <button class="btn btn-secondary btn-sm" data-action="export-subs">CSV İndir</button>
           </div>
           <div class="admin-table-wrap">
             <table class="admin-table">
@@ -363,12 +369,12 @@
   <div class="admin-toast" id="admin-toast"></div>
 
   <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js" integrity="sha384-nMqKrgk2MOVr+J6K7dYFdt02ATuHV/Bqbpl7SQl+GYXyf1CHx9oLuiXNpVdd0rJh" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js" integrity="sha384-DRaDw8zunay8Id8djbfyBTcL38QknHkXONVwo0TBWCAQGSpIANj+4OSCTdxxaY5T" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js" integrity="sha384-I1LYojsZ5RM1cOda44Z2h42Qa6YfsQ1XkXxREnhp4ueYBR/4d1pG1K+NZM537Vsj" crossorigin="anonymous"></script>
 
   <!-- Quill Editor -->
-  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
 
   <script src="js/firebase-config.js"></script>
   <script src="js/config.js"></script>

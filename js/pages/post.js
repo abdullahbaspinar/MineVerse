@@ -32,8 +32,9 @@ async function initPostDetail() {
     /* Hero */
     if (heroEl) {
       const heroBg = heroEl.querySelector('.hero-bg');
-      if (heroBg && post.coverImageUrl) {
-        heroBg.style.backgroundImage = `url(${post.coverImageUrl})`;
+      const safeImg = Render.safeUrl(post.coverImageUrl);
+      if (heroBg && safeImg) {
+        heroBg.style.backgroundImage = `url(${CSS.escape(safeImg)})`;
         heroBg.style.backgroundSize = 'cover';
         heroBg.style.backgroundPosition = 'center';
         heroBg.classList.add('has-image');
@@ -42,7 +43,7 @@ async function initPostDetail() {
       const cat = CONFIG.categories[post.category] || post.category || '';
       heroEl.querySelector('.post-meta').innerHTML = `
         ${cat ? `<span class="badge">${Render.escapeHtml(cat)}</span>` : ''}
-        <time datetime="${post.publishedAt}">${Render.formatDate(post.publishedAt)}</time>
+        <time datetime="${Render.escapeHtml(post.publishedAt)}">${Render.formatDate(post.publishedAt)}</time>
       `;
       heroEl.querySelector('h1').textContent = post.title;
     }

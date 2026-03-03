@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; object-src 'none'; base-uri 'self';" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>Sayfa Bulunamadı – MineVerse</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+  <style>
+    .error-page {
+      min-height: calc(100vh - var(--header-h) - 120px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-8) var(--space-4);
+      position: relative;
+      overflow: hidden;
+    }
+    .error-page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 70%, var(--color-accent-dim) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 30%, var(--color-accent-dim) 0%, transparent 50%);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .error-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 600px;
+    }
+    .error-visual {
+      position: relative;
+      margin-bottom: var(--space-8);
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .error-code {
+      font-family: var(--font-display);
+      font-size: clamp(7rem, 20vw, 12rem);
+      font-weight: 800;
+      line-height: 1;
+      color: var(--color-text);
+      opacity: 0.06;
+      position: absolute;
+      user-select: none;
+    }
+    .error-icon {
+      position: relative;
+      z-index: 1;
+    }
+    .pickaxe {
+      font-size: 5rem;
+      display: inline-block;
+      animation: swing 2.5s ease-in-out infinite;
+      transform-origin: 80% 20%;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,.3));
+    }
+    @keyframes swing {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-25deg); }
+      50% { transform: rotate(5deg); }
+      75% { transform: rotate(-15deg); }
+    }
+    .rocks {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      opacity: 0.5;
+    }
+    .rock {
+      width: 8px;
+      height: 8px;
+      background: var(--color-text-muted);
+      border-radius: 2px;
+      animation: rockFall 2.5s ease-in-out infinite;
+      opacity: 0;
+    }
+    .rock:nth-child(1) { animation-delay: 0.3s; transform: rotate(15deg); }
+    .rock:nth-child(2) { animation-delay: 0.4s; width: 6px; height: 6px; transform: rotate(-20deg); }
+    .rock:nth-child(3) { animation-delay: 0.5s; width: 10px; height: 10px; transform: rotate(45deg); }
+    .rock:nth-child(4) { animation-delay: 0.35s; width: 5px; height: 5px; transform: rotate(-10deg); }
+    @keyframes rockFall {
+      0%, 20% { opacity: 0; transform: translateY(-20px) scale(0.5); }
+      30% { opacity: 0.8; transform: translateY(0) scale(1); }
+      50% { opacity: 0.6; transform: translateY(10px) scale(0.8); }
+      70%, 100% { opacity: 0; transform: translateY(30px) scale(0.3); }
+    }
+    .error-content h1 {
+      font-size: var(--text-3xl);
+      margin-bottom: var(--space-3);
+      animation: fadeIn 0.6s ease both 0.2s;
+    }
+    @media (min-width: 768px) {
+      .error-content h1 { font-size: var(--text-4xl); }
+    }
+    .error-content .error-desc {
+      color: var(--color-text-muted);
+      font-size: var(--text-lg);
+      margin-bottom: var(--space-8);
+      animation: fadeIn 0.6s ease both 0.4s;
+    }
+    .error-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--space-3);
+      animation: fadeIn 0.6s ease both 0.6s;
+    }
+    .error-links {
+      margin-top: var(--space-10);
+      padding-top: var(--space-6);
+      border-top: 1px solid var(--color-border);
+      animation: fadeIn 0.6s ease both 0.8s;
+    }
+    .error-links p {
+      font-size: var(--text-sm);
+      color: var(--color-text-dim);
+      margin-bottom: var(--space-4);
+    }
+    .error-link-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--space-2);
+    }
+    .error-link-grid a {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-full);
+      transition: all var(--transition-fast);
+    }
+    .error-link-grid a:hover {
+      color: var(--color-accent);
+      border-color: var(--color-accent);
+      background: var(--color-accent-dim);
+    }
+    .tunnel-lines {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 20px,
+        var(--color-border) 20px,
+        var(--color-border) 22px
+      );
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+<script>
+  (function(){var t=localStorage.getItem('mv_theme');if(t)document.documentElement.setAttribute('data-theme',t);
+  else document.documentElement.setAttribute('data-theme',window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');})();
+</script>
+
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <a href="index.html" class="logo" aria-label="MineVerse Anasayfa">
+        <img src="assets/img/logo.png" alt="MineVerse" />
+      </a>
+      <div class="header-right">
+        <nav class="nav-desktop" aria-label="Ana menü">
+          <a href="index.html" data-nav-link>Anasayfa</a>
+          <a href="posts.html" data-nav-link>İçerikler</a>
+          <a href="videos.html" data-nav-link>Videolar</a>
+          <a href="about.html" data-nav-link>Hakkımızda</a>
+          <a href="newsletter.html" data-nav-link>Bülten</a>
+          <a href="contact.html" data-nav-link>İletişim</a>
+        </nav>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Tema değiştir">
+          <span class="icon-sun">☀️</span>
+          <span class="icon-moon">🌙</span>
+        </button>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Menüyü aç" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+  <nav class="nav-mobile" id="nav-mobile" aria-label="Mobil menü">
+    <button class="nav-mobile-close" id="nav-mobile-close" aria-label="Menüyü kapat">&times;</button>
+    <a href="index.html" data-nav-link>Anasayfa</a>
+    <a href="posts.html" data-nav-link>İçerikler</a>
+    <a href="videos.html" data-nav-link>Videolar</a>
+    <a href="about.html" data-nav-link>Hakkımızda</a>
+    <a href="newsletter.html" data-nav-link>Bülten</a>
+    <a href="contact.html" data-nav-link>İletişim</a>
+  </nav>
+
+  <main>
+    <section class="error-page">
+      <div class="tunnel-lines"></div>
+
+      <div class="error-content">
+        <div class="error-visual">
+          <span class="error-code">404</span>
+          <div class="error-icon">
+            <span class="pickaxe">⛏️</span>
+            <div class="rocks">
+              <span class="rock"></span>
+              <span class="rock"></span>
+              <span class="rock"></span>
+              <span class="rock"></span>
+            </div>
+          </div>
+        </div>
+
+        <h1>Bu Madeni Bulamadık</h1>
+        <p class="error-desc">
+          Aradığınız sayfa yeraltında kaybolmuş veya başka bir tünele taşınmış olabilir.
+        </p>
+
+        <div class="error-actions">
+          <a href="index.html" class="btn btn-primary btn-lg">Anasayfaya Dön</a>
+          <a href="posts.html" class="btn btn-secondary btn-lg">İçerikleri Keşfet</a>
+        </div>
+
+        <div class="error-links">
+          <p>Belki bunlardan birini arıyordunuz?</p>
+          <div class="error-link-grid">
+            <a href="posts.html?category=interview">Röportajlar</a>
+            <a href="posts.html?category=story">Hikâyeler</a>
+            <a href="videos.html">Videolar</a>
+            <a href="about.html">Hakkımızda</a>
+            <a href="newsletter.html">Bülten</a>
+            <a href="contact.html">İletişim</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2026 MineVerse. Tüm hakları saklıdır.</p>
+        <a href="admin.html" class="footer-admin-link" aria-label="Yönetim Paneli">🔒 Yönetim</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

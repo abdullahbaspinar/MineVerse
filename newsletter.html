@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://firestore.googleapis.com https://*.firebaseio.com; object-src 'none'; base-uri 'self';" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Bülten – MineVerse</title>
   <meta name="description" content="MineVerse bültenine katılarak madencilik dünyasından en güncel haberleri, röportajları ve hikâyeleri e-posta ile alın." />
   <link rel="canonical" href="https://mineverse.com/newsletter.html" />
@@ -138,17 +141,18 @@
       <div class="footer-bottom">
         <p>&copy; 2026 MineVerse. Tüm hakları saklıdır.</p>
         <div class="social-links">
-          <a href="https://twitter.com/mineverse" target="_blank" rel="noopener" aria-label="Twitter">𝕏</a>
-          <a href="https://linkedin.com/company/mineverse" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>
-          <a href="https://youtube.com/@mineverse" target="_blank" rel="noopener" aria-label="YouTube">▶</a>
-          <a href="https://instagram.com/mineverse" target="_blank" rel="noopener" aria-label="Instagram">📷</a>
+          <a href="https://twitter.com/mineverse" target="_blank" rel="noopener noreferrer" aria-label="Twitter">𝕏</a>
+          <a href="https://linkedin.com/company/mineverse" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">in</a>
+          <a href="https://youtube.com/@mineverse" target="_blank" rel="noopener noreferrer" aria-label="YouTube">▶</a>
+          <a href="https://instagram.com/mineverse" target="_blank" rel="noopener noreferrer" aria-label="Instagram">📷</a>
         </div>
+        <a href="admin.html" class="footer-admin-link" aria-label="Yönetim Paneli">🔒 Yönetim</a>
       </div>
     </div>
   </footer>
 
-  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js" integrity="sha384-nMqKrgk2MOVr+J6K7dYFdt02ATuHV/Bqbpl7SQl+GYXyf1CHx9oLuiXNpVdd0rJh" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js" integrity="sha384-DRaDw8zunay8Id8djbfyBTcL38QknHkXONVwo0TBWCAQGSpIANj+4OSCTdxxaY5T" crossorigin="anonymous"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>

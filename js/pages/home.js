@@ -21,43 +21,24 @@ function showFirebaseDebugIfError() {
   const err = API.getLastError();
   if (!err) return;
 
+  const code = err.code || '';
+  let userMsg = 'İçerikler şu anda yüklenemiyor. Lütfen daha sonra tekrar deneyin.';
+  if (code === 'permission-denied') userMsg = 'Veri erişim izni reddedildi. Lütfen site yöneticisiyle iletişime geçin.';
+  else if (code === 'unavailable' || (err.message && err.message.includes('network'))) userMsg = 'Bağlantı kurulamadı. İnternet bağlantınızı kontrol edin.';
+
+  console.error('[Firebase]', code, err.message);
+
   const banner = document.createElement('div');
   banner.style.cssText =
     'position:fixed;bottom:0;left:0;right:0;z-index:9999;' +
-    'background:#b00020;color:#fff;padding:16px 24px;font-size:14px;font-family:monospace;' +
-    'line-height:1.5;max-height:40vh;overflow:auto;';
-
-  let hint = '';
-  const msg = err.message || String(err);
-  const code = err.code || '';
-
-  if (code === 'permission-denied' || msg.includes('Missing or insufficient permissions')) {
-    hint =
-      '<br><br><strong>Firestore Security Rules sorunu.</strong><br>' +
-      'Firebase Console → Firestore Database → Rules kısmına gidin ve şu kuralları uygulayın:<br><br>' +
-      '<code style="background:#000;padding:8px;display:block;white-space:pre;border-radius:4px;">' +
-      'rules_version = \'2\';\n' +
-      'service cloud.firestore {\n' +
-      '  match /databases/{database}/documents {\n' +
-      '    match /posts/{doc} { allow read: if true; allow write: if request.auth != null; }\n' +
-      '    match /videos/{doc} { allow read: if true; allow write: if request.auth != null; }\n' +
-      '    match /newsletter_subscribers/{doc} { allow read: if request.auth != null; allow create: if true; }\n' +
-      '    match /contact_messages/{doc} { allow read: if request.auth != null; allow create: if true; }\n' +
-      '  }\n' +
-      '}</code>';
-  } else if (msg.includes('Failed to get document') || msg.includes('network') || msg.includes('unavailable')) {
-    hint = '<br><br><strong>Ağ hatası.</strong> İnternet bağlantınızı kontrol edin veya Firebase projenizin aktif olduğundan emin olun.';
-  } else if (msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED')) {
-    hint = '<br><br><strong>Firebase kotası dolmuş.</strong> Ücretsiz plan limitini aştınız.';
-  }
-
-  banner.innerHTML =
-    '<strong>Firebase Hatası:</strong> ' + Render.escapeHtml(msg) +
-    (code ? ' <em>(code: ' + Render.escapeHtml(code) + ')</em>' : '') +
-    hint +
-    '<br><br><button onclick="this.parentElement.remove()" ' +
-    'style="background:#fff;color:#b00020;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:bold;">Kapat</button>';
-
+    'background:var(--color-error, #b00020);color:#fff;padding:12px 24px;font-size:14px;' +
+    'text-align:center;';
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = 'Kapat';
+  closeBtn.style.cssText = 'background:#fff;color:#b00020;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:bold;margin-left:12px;';
+  closeBtn.addEventListener('click', () => banner.remove());
+  banner.textContent = userMsg;
+  banner.appendChild(closeBtn);
   document.body.appendChild(banner);
 }
 

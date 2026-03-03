@@ -38,7 +38,7 @@ async function initVideoDetail() {
       infoEl.innerHTML = `
         <h1>${Render.escapeHtml(video.title)}</h1>
         <div class="card-meta">
-          <time datetime="${video.publishedAt}">${Render.formatDate(video.publishedAt)}</time>
+          <time datetime="${Render.escapeHtml(video.publishedAt)}">${Render.formatDate(video.publishedAt)}</time>
         </div>
         ${video.description ? `<div class="video-detail-description">${Render.escapeHtml(video.description)}</div>` : ''}
       `;

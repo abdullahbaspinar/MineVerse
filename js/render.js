@@ -4,6 +4,55 @@ const Render = (() => {
 
   /* ═══════════════ SANITIZATION ═══════════════ */
 
+  const SAFE_TAGS = new Set([
+    'p','h1','h2','h3','h4','h5','h6','a','img','strong','b','em','i','u','s',
+    'ul','ol','li','blockquote','br','span','div','table','thead','tbody','tfoot',
+    'tr','td','th','figure','figcaption','pre','code','hr','sup','sub','small',
+    'dl','dt','dd','abbr','time','mark','del','ins','caption',
+  ]);
+
+  const SAFE_ATTRS = new Set([
+    'href','src','alt','title','class','id','width','height','colspan','rowspan',
+    'target','rel','loading','datetime','cite','start','type',
+  ]);
+
+  /**
+   * Whitelist-based HTML sanitizer. Strips scripts, event handlers,
+   * dangerous tags/attributes, and javascript: URIs from rich text.
+   */
+  function sanitizeHtml(html) {
+    if (!html || typeof html !== 'string') return '';
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+
+    doc.querySelectorAll('script,style,link,meta,object,embed,form,input,textarea,select,button,iframe,svg,math').forEach(el => el.remove());
+
+    const walk = (root) => {
+      [...root.querySelectorAll('*')].forEach(el => {
+        const tag = el.tagName.toLowerCase();
+        if (!SAFE_TAGS.has(tag)) {
+          el.replaceWith(...el.childNodes);
+          return;
+        }
+        [...el.attributes].forEach(attr => {
+          const name = attr.name.toLowerCase();
+          if (name.startsWith('on') || !SAFE_ATTRS.has(name)) {
+            el.removeAttribute(attr.name);
+            return;
+          }
+          if ((name === 'href' || name === 'src') && /^\s*(javascript|vbscript|data):/i.test(attr.value)) {
+            el.removeAttribute(attr.name);
+          }
+        });
+        if (tag === 'a') {
+          el.setAttribute('rel', 'noopener noreferrer');
+          if (!el.getAttribute('target')) el.setAttribute('target', '_blank');
+        }
+      });
+    };
+    walk(doc.body);
+    return doc.body.innerHTML;
+  }
+
   /**
    * Sanitize YouTube embed – only allow safe iframe with youtube domain.
    * Strips any script, event handlers, and non-iframe tags.
@@ -26,6 +75,8 @@ const Render = (() => {
     safe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
     safe.setAttribute('allowfullscreen', '');
     safe.setAttribute('loading', 'lazy');
+    safe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+    safe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
     return safe.outerHTML;
   }
 
@@ -34,6 +85,15 @@ const Render = (() => {
     if (!str) return '';
     const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
     return str.replace(/[&<>"']/g, c => map[c]);
+  }
+
+  /** Validate a URL string is safe (http/https only) */
+  function safeUrl(url) {
+    if (!url || typeof url !== 'string') return '';
+    try {
+      const parsed = new URL(url, window.location.origin);
+      return ['http:', 'https:'].includes(parsed.protocol) ? url : '';
+    } catch { return ''; }
   }
 
   /* ═══════════════ PORTABLE TEXT RENDERER ═══════════════ */
@@ -45,7 +105,7 @@ const Render = (() => {
    */
   function renderBody(body) {
     if (!body) return '<p class="text-muted">İçerik bulunamadı.</p>';
-    if (typeof body === 'string') return body;
+    if (typeof body === 'string') return sanitizeHtml(body);
     if (Array.isArray(body)) return renderPortableText(body);
     return '<p class="text-muted">İçerik bulunamadı.</p>';
   }
@@ -98,14 +158,14 @@ const Render = (() => {
 
     el.innerHTML = `
       <div class="card-img-wrap">
-        <img src="${escapeHtml(post.coverImageUrl)}" alt="${escapeHtml(post.title)}" loading="lazy" />
+        <img src="${escapeHtml(safeUrl(post.coverImageUrl))}" alt="${escapeHtml(post.title)}" loading="lazy" />
       </div>
       <div class="card-body">
         ${cat ? `<span class="badge">${escapeHtml(cat)}</span>` : ''}
         <h3><a href="post.html?slug=${encodeURIComponent(slug)}">${escapeHtml(post.title)}</a></h3>
         <p class="card-excerpt">${escapeHtml(post.excerpt)}</p>
         <div class="card-meta">
-          <time datetime="${post.publishedAt}">${formatDate(post.publishedAt)}</time>
+          <time datetime="${escapeHtml(post.publishedAt)}">${formatDate(post.publishedAt)}</time>
         </div>
       </div>
     `;
@@ -119,12 +179,12 @@ const Render = (() => {
     el.style.cursor = 'pointer';
     el.innerHTML = `
       <div class="card-img-wrap">
-        <img src="${escapeHtml(video.coverImageUrl)}" alt="${escapeHtml(video.title)}" loading="lazy" />
+        <img src="${escapeHtml(safeUrl(video.coverImageUrl))}" alt="${escapeHtml(video.title)}" loading="lazy" />
       </div>
       <div class="card-body">
         <h3>${escapeHtml(video.title)}</h3>
         <div class="card-meta">
-          <time datetime="${video.publishedAt}">${formatDate(video.publishedAt)}</time>
+          <time datetime="${escapeHtml(video.publishedAt)}">${formatDate(video.publishedAt)}</time>
         </div>
       </div>
     `;
@@ -144,7 +204,7 @@ const Render = (() => {
       <div class="video-embed">${sanitizeEmbed(video.youtubeEmbed)}</div>
       <h3>${escapeHtml(video.title)}</h3>
       <div class="card-meta">
-        <time datetime="${video.publishedAt}">${formatDate(video.publishedAt)}</time>
+        <time datetime="${escapeHtml(video.publishedAt)}">${formatDate(video.publishedAt)}</time>
       </div>
     `;
     el.addEventListener('click', () => {
@@ -220,7 +280,9 @@ const Render = (() => {
 
   return {
     sanitizeEmbed,
+    sanitizeHtml,
     escapeHtml,
+    safeUrl,
     renderBody,
     renderPortableText,
     formatDate,

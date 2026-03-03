@@ -15,6 +15,9 @@ function initNewsletter() {
     if (!emailInput || !emailInput.value.trim()) return;
 
     const email = emailInput.value.trim();
+    if (!isValidEmail(email)) { emailInput.value = ''; emailInput.placeholder = 'Geçersiz e-posta adresi'; setTimeout(() => { emailInput.placeholder = 'ornek@email.com'; }, 3000); return; }
+    if (!RateLimiter.check('newsletter_form')) { emailInput.placeholder = 'Lütfen biraz bekleyin...'; setTimeout(() => { emailInput.placeholder = 'ornek@email.com'; }, 3000); return; }
+
     const submitBtn = form.querySelector('button[type="submit"]');
 
     submitBtn.disabled = true;
