@@ -16,11 +16,26 @@
   border-radius: var(--radius-xl);
   padding: var(--space-10);
 }
-.login-card .logo { font-size: var(--text-2xl); margin-bottom: var(--space-2); display: block; text-align: center; }
+.login-card .logo { margin-bottom: var(--space-2); display: flex; justify-content: center; }
+.login-card .logo img { height: 48px; filter: var(--logo-filter); }
 .login-card p { text-align: center; color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--space-8); }
 .login-card .form-group:last-of-type { margin-bottom: var(--space-6); }
 .login-card .btn { width: 100%; }
 .login-error { color: var(--color-error); font-size: var(--text-sm); text-align: center; margin-top: var(--space-4); display: none; }
+.login-success { color: var(--color-success); font-size: var(--text-sm); text-align: center; margin-top: var(--space-3); display: none; }
+.login-forgot {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+.login-forgot:hover { color: var(--color-accent); }
 
 /* ── Shell ── */
 .admin-shell {
@@ -45,7 +60,7 @@
   padding: var(--space-6);
   border-bottom: 1px solid var(--color-border);
 }
-.sidebar-brand .logo { font-size: var(--text-lg); }
+.sidebar-brand .logo img { height: 32px; filter: var(--logo-filter); }
 .sidebar-brand small { display: block; font-size: var(--text-xs); color: var(--color-text-dim); margin-top: var(--space-1); }
 .sidebar-nav {
   flex: 1;
@@ -76,8 +91,8 @@
 .sidebar-nav-item .nav-icon { font-size: var(--text-lg); width: 24px; text-align: center; flex-shrink: 0; }
 .sidebar-nav-item .nav-badge {
   margin-left: auto;
-  background: var(--color-accent);
-  color: #000;
+  background: var(--color-error);
+  color: #fff;
   font-size: 10px;
   font-weight: 700;
   padding: 2px 7px;
@@ -117,7 +132,7 @@
 .admin-header {
   position: sticky;
   top: 0;
-  background: rgba(13,13,13,.92);
+  background: var(--header-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-border);
@@ -204,7 +219,7 @@
   vertical-align: middle;
 }
 .admin-table tr:last-child td { border-bottom: none; }
-.admin-table tr:hover td { background: rgba(255,255,255,.02); }
+.admin-table tr:hover td { background: var(--color-accent-dim); }
 .admin-table .row-title { font-weight: 600; color: var(--color-text); max-width: 300px; }
 .admin-table .row-actions { display: flex; gap: var(--space-2); white-space: nowrap; }
 .admin-table .row-thumb {

@@ -18,11 +18,15 @@
   <link rel="stylesheet" href="css/admin.css" />
 </head>
 <body>
+<script>
+  (function(){var t=localStorage.getItem('mv_theme');if(t)document.documentElement.setAttribute('data-theme',t);
+  else document.documentElement.setAttribute('data-theme',window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');})();
+</script>
 
   <!-- ═══════════ LOGIN SCREEN ═══════════ -->
   <div class="admin-login" id="login-screen">
     <div class="login-card">
-      <a href="index.html" class="logo">Mine<span>Verse</span></a>
+      <a href="index.html" class="logo"><img src="assets/img/logo.png" alt="MineVerse" /></a>
       <p>Admin paneline giriş yapın</p>
       <form id="login-form">
         <div class="form-group">
@@ -36,6 +40,8 @@
         <button type="submit" class="btn btn-primary btn-lg">Giriş Yap</button>
         <p class="login-error" id="login-error"></p>
       </form>
+      <button class="login-forgot" id="forgot-password-btn">Şifremi Unuttum</button>
+      <p class="login-success" id="login-success"></p>
     </div>
   </div>
 
@@ -45,7 +51,7 @@
     <!-- Sidebar -->
     <aside class="admin-sidebar" id="admin-sidebar">
       <div class="sidebar-brand">
-        <a href="index.html" class="logo">Mine<span>Verse</span></a>
+        <a href="index.html" class="logo"><img src="assets/img/logo.png" alt="MineVerse" /></a>
         <small>Yönetim Paneli</small>
       </div>
       <nav class="sidebar-nav">

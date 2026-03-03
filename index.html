@@ -25,24 +25,37 @@
   <link rel="stylesheet" href="css/pages.css" />
 </head>
 <body>
+<script>
+  (function(){var t=localStorage.getItem('mv_theme');if(t)document.documentElement.setAttribute('data-theme',t);
+  else document.documentElement.setAttribute('data-theme',window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');})();
+</script>
 
   <!-- ═══════════ HEADER ═══════════ -->
   <header class="site-header" role="banner">
     <div class="container header-inner">
-      <a href="index.html" class="logo" aria-label="MineVerse Anasayfa">Mine<span>Verse</span></a>
+      <a href="index.html" class="logo" aria-label="MineVerse Anasayfa">
+        <img src="assets/img/logo.png" alt="MineVerse" />
+      </a>
 
-      <nav class="nav-desktop" aria-label="Ana menü">
-        <a href="index.html" data-nav-link>Anasayfa</a>
-        <a href="posts.html" data-nav-link>İçerikler</a>
-        <a href="videos.html" data-nav-link>Videolar</a>
-        <a href="about.html" data-nav-link>Hakkımızda</a>
-        <a href="newsletter.html" data-nav-link>Bülten</a>
-        <a href="contact.html" data-nav-link>İletişim</a>
-      </nav>
+      <div class="header-right">
+        <nav class="nav-desktop" aria-label="Ana menü">
+          <a href="index.html" data-nav-link>Anasayfa</a>
+          <a href="posts.html" data-nav-link>İçerikler</a>
+          <a href="videos.html" data-nav-link>Videolar</a>
+          <a href="about.html" data-nav-link>Hakkımızda</a>
+          <a href="newsletter.html" data-nav-link>Bülten</a>
+          <a href="contact.html" data-nav-link>İletişim</a>
+        </nav>
 
-      <button class="nav-toggle" id="nav-toggle" aria-label="Menüyü aç" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Tema değiştir">
+          <span class="icon-sun">☀️</span>
+          <span class="icon-moon">🌙</span>
+        </button>
+
+        <button class="nav-toggle" id="nav-toggle" aria-label="Menüyü aç" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -174,7 +187,7 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a href="index.html" class="logo">Mine<span>Verse</span></a>
+          <a href="index.html" class="logo"><img src="assets/img/logo.png" alt="MineVerse" /></a>
           <p>Madencilik dünyasını küresel bir bakış açısıyla ele alan bağımsız dijital platform.</p>
         </div>
         <div>

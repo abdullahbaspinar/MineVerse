@@ -21,7 +21,8 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(13,13,13,.7) 0%, rgba(13,13,13,.95) 100%);
+  background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg) 100%);
+  opacity: 0.85;
 }
 .hero-bg img {
   width: 100%; height: 100%;
@@ -35,7 +36,7 @@
 .hero-tagline {
   font-family: var(--font-display);
   font-size: var(--text-lg);
-  color: var(--color-accent);
+  color: var(--color-text-muted);
   font-weight: 600;
   margin-bottom: var(--space-3);
   text-transform: uppercase;
@@ -56,9 +57,9 @@
 /* CSS-only hero gradient (no external image dependency) */
 .hero-gradient {
   background:
-    radial-gradient(ellipse at 20% 80%, rgba(212,160,60,.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(212,160,60,.08) 0%, transparent 50%),
-    linear-gradient(180deg, #0d0d0d 0%, #1a1a1a 40%, #151515 100%);
+    radial-gradient(ellipse at 20% 80%, var(--color-accent-dim) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, var(--color-accent-dim) 0%, transparent 50%),
+    linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-elevated) 40%, var(--color-bg) 100%);
 }
 /* When post hero has a real cover image set via JS, show the bg */
 .hero-gradient .hero-bg { display: none; }
@@ -69,7 +70,8 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(13,13,13,.6) 0%, rgba(13,13,13,.92) 100%);
+  background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-bg) 100%);
+  opacity: 0.8;
 }
 
 /* Decorative underground lines */
@@ -78,8 +80,8 @@
   position: absolute;
   bottom: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
-  opacity: .3;
+  background: linear-gradient(90deg, transparent, var(--color-border), transparent);
+  opacity: .5;
 }
 
 /* ═══════════════ HOME – Section variants ═══════════════ */
@@ -89,11 +91,12 @@
 }
 
 .cta-block {
-  background: linear-gradient(135deg, var(--color-bg-elevated), var(--color-bg-card));
+  background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: var(--space-10) var(--space-6);
   text-align: center;
+  box-shadow: var(--shadow-sm);
 }
 @media (min-width: 768px) {
   .cta-block { padding: var(--space-12) var(--space-10); }
@@ -179,7 +182,8 @@
 .video-detail-player {
   border-radius: var(--radius-xl);
   overflow: hidden;
-  background: #000;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
 }
 
 .video-detail-embed {
@@ -240,6 +244,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
 }
 .about-feature-icon {
   font-size: var(--text-3xl);

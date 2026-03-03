@@ -26,6 +26,7 @@ const Admin = (() => {
     });
 
     setupLoginForm();
+    setupForgotPassword();
     setupNavigation();
     setupMobileMenu();
   }
@@ -56,6 +57,49 @@ const Admin = (() => {
       }
       btn.disabled = false;
       btn.textContent = 'Giriş Yap';
+    });
+  }
+
+  function setupForgotPassword() {
+    const btn = document.getElementById('forgot-password-btn');
+    const errEl = document.getElementById('login-error');
+    const successEl = document.getElementById('login-success');
+
+    btn.addEventListener('click', async () => {
+      const emailInput = document.getElementById('login-email');
+      const email = emailInput.value.trim();
+      errEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      if (!email) {
+        errEl.textContent = 'Lütfen önce e-posta adresinizi girin.';
+        errEl.style.display = 'block';
+        emailInput.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Gönderiliyor...';
+
+      try {
+        await auth.sendPasswordResetEmail(email);
+        successEl.textContent = 'Şifre sıfırlama bağlantısı ' + email + ' adresine gönderildi. Lütfen e-postanızı kontrol edin.';
+        successEl.style.display = 'block';
+      } catch (err) {
+        if (err.code === 'auth/user-not-found') {
+          errEl.textContent = 'Bu e-posta adresiyle kayıtlı bir kullanıcı bulunamadı.';
+        } else if (err.code === 'auth/invalid-email') {
+          errEl.textContent = 'Geçersiz e-posta adresi.';
+        } else if (err.code === 'auth/too-many-requests') {
+          errEl.textContent = 'Çok fazla deneme. Lütfen biraz bekleyip tekrar deneyin.';
+        } else {
+          errEl.textContent = 'Hata: ' + (err.message || err.code);
+        }
+        errEl.style.display = 'block';
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Şifremi Unuttum';
     });
   }
 
