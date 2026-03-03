@@ -52,10 +52,8 @@
 
   <main>
     <!-- Post Hero -->
-    <section class="hero post-hero" id="post-hero" aria-label="İçerik görseli">
-      <div class="hero-bg">
-        <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1400&h=700&fit=crop" alt="" loading="eager" />
-      </div>
+    <section class="hero hero-gradient post-hero" id="post-hero" aria-label="İçerik görseli">
+      <div class="hero-bg"></div>
       <div class="container hero-content">
         <div class="post-meta"></div>
         <h1>Yükleniyor...</h1>
@@ -130,8 +128,10 @@
     </div>
   </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
   <script src="js/config.js"></script>
-  <script src="js/mockData.js"></script>
   <script src="js/api.js"></script>
   <script src="js/render.js"></script>
   <script src="js/router.js"></script>

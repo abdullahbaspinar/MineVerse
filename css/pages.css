@@ -53,6 +53,25 @@
   gap: var(--space-3);
 }
 
+/* CSS-only hero gradient (no external image dependency) */
+.hero-gradient {
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(212,160,60,.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(212,160,60,.08) 0%, transparent 50%),
+    linear-gradient(180deg, #0d0d0d 0%, #1a1a1a 40%, #151515 100%);
+}
+/* When post hero has a real cover image set via JS, show the bg */
+.hero-gradient .hero-bg { display: none; }
+.hero .hero-bg.has-image {
+  display: block;
+}
+.hero .hero-bg.has-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(13,13,13,.6) 0%, rgba(13,13,13,.92) 100%);
+}
+
 /* Decorative underground lines */
 .hero::before {
   content: '';

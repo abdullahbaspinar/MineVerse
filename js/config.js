@@ -1,16 +1,17 @@
 /* config.js – API configuration, constants, feature flags */
 
 const CONFIG = Object.freeze({
-  /* ── Sanity CMS ── */
+  /* ── Data Source ── */
+  /* 'firestore' = Firebase Firestore, 'mock' = local mock data, 'sanity' = Sanity CMS */
+  dataSource: 'firestore',
+
+  /* ── Sanity CMS (only used when dataSource is 'sanity') ── */
   sanity: {
     projectId: 'YOUR_PROJECT_ID',
     dataset: 'production',
     apiVersion: '2024-01-01',
     useCdn: true,
   },
-
-  /* Toggle: true = fetch from Sanity API, false = use local mock data */
-  useMockData: true,
 
   /* Cache TTL in milliseconds (5 minutes) */
   cacheTTL: 5 * 60 * 1000,

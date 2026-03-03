@@ -26,18 +26,32 @@ function initMobileNav() {
   });
 }
 
-/* ── Footer Newsletter (mini form) ── */
+/* ── Footer Newsletter (mini form) → Firebase ── */
 function initFooterNewsletter() {
   const form = document.getElementById('footer-newsletter-form');
   if (!form) return;
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const input = form.querySelector('input[type="email"]');
     if (!input || !input.value.trim()) return;
 
+    const email = input.value.trim();
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    const result = await FirebaseHelper.addSubscriber(email);
+
     input.value = '';
-    input.placeholder = 'Teşekkürler! ✓';
+    btn.disabled = false;
+    btn.textContent = 'Katıl';
+
+    if (result.success) {
+      input.placeholder = result.alreadyExists ? 'Zaten abonesiniz ✓' : 'Teşekkürler! ✓';
+    } else {
+      input.placeholder = 'Hata oluştu, tekrar deneyin';
+    }
     setTimeout(() => { input.placeholder = 'E-posta adresiniz'; }, 3000);
   });
 }

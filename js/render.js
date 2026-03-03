@@ -38,6 +38,18 @@ const Render = (() => {
 
   /* ═══════════════ PORTABLE TEXT RENDERER ═══════════════ */
 
+  /**
+   * Render post body. Handles two formats:
+   * - string (HTML from Firestore / Quill editor)
+   * - array  (Portable Text from Sanity / mock data)
+   */
+  function renderBody(body) {
+    if (!body) return '<p class="text-muted">İçerik bulunamadı.</p>';
+    if (typeof body === 'string') return body;
+    if (Array.isArray(body)) return renderPortableText(body);
+    return '<p class="text-muted">İçerik bulunamadı.</p>';
+  }
+
   function renderPortableText(blocks) {
     if (!blocks || !Array.isArray(blocks)) return '<p class="text-muted">İçerik bulunamadı.</p>';
 
@@ -201,6 +213,7 @@ const Render = (() => {
   return {
     sanitizeEmbed,
     escapeHtml,
+    renderBody,
     renderPortableText,
     formatDate,
     postCard,

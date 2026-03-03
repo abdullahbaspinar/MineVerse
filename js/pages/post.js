@@ -31,8 +31,13 @@ async function initPostDetail() {
 
     /* Hero */
     if (heroEl) {
-      const bgImg = heroEl.querySelector('.hero-bg img');
-      if (bgImg && post.coverImageUrl) bgImg.src = post.coverImageUrl;
+      const heroBg = heroEl.querySelector('.hero-bg');
+      if (heroBg && post.coverImageUrl) {
+        heroBg.style.backgroundImage = `url(${post.coverImageUrl})`;
+        heroBg.style.backgroundSize = 'cover';
+        heroBg.style.backgroundPosition = 'center';
+        heroBg.classList.add('has-image');
+      }
 
       const cat = CONFIG.categories[post.category] || post.category || '';
       heroEl.querySelector('.post-meta').innerHTML = `
@@ -44,7 +49,7 @@ async function initPostDetail() {
 
     /* Article body */
     if (articleEl) {
-      articleEl.innerHTML = Render.renderPortableText(post.body);
+      articleEl.innerHTML = Render.renderBody(post.body);
     }
 
     /* Tags */
