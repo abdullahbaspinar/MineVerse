@@ -145,11 +145,10 @@ const Admin = (() => {
     else if (name === 'posts') { hidePostForm(); loadPosts(); }
     else if (name === 'videos') { hideVideoForm(); loadVideos(); }
     else if (name === 'subscribers') loadSubscribers();
-    else if (name === 'messages') loadMessages();
   }
 
   function sectionTitle(name) {
-    const map = { dashboard: 'Dashboard', posts: 'İçerik Yönetimi', videos: 'Video Yönetimi', subscribers: 'Aboneler', messages: 'Mesajlar' };
+    const map = { dashboard: 'Dashboard', posts: 'İçerik Yönetimi', videos: 'Video Yönetimi', subscribers: 'Aboneler' };
     return map[name] || name;
   }
 
@@ -188,8 +187,6 @@ const Admin = (() => {
         case 'edit-video': editVideo(id); break;
         case 'delete-video': deleteVideo(id, title); break;
         case 'delete-subscriber': deleteSubscriber(id); break;
-        case 'toggle-read': toggleReadMessage(id, readVal === 'true'); break;
-        case 'delete-message': deleteMessage(id); break;
         case 'new-post': editingPostId = null; showPostForm(); break;
         case 'new-video': editingVideoId = null; showVideoForm(); break;
         case 'export-subs': exportSubscribers(); break;
@@ -285,23 +282,15 @@ const Admin = (() => {
 
   /* ═══════════════ DASHBOARD ═══════════════ */
   async function loadDashboard() {
-    const [posts, videos, subs, msgs] = await Promise.all([
+    const [posts, videos, subs] = await Promise.all([
       db.collection('posts').get(),
       db.collection('videos').get(),
       db.collection('newsletter_subscribers').get(),
-      db.collection('contact_messages').get(),
     ]);
-
-    const unreadCount = msgs.docs.filter(d => !d.data().read).length;
 
     document.getElementById('stat-posts').textContent = posts.size;
     document.getElementById('stat-videos').textContent = videos.size;
     document.getElementById('stat-subs').textContent = subs.size;
-    document.getElementById('stat-msgs').textContent = msgs.size;
-
-    const msgBadge = document.getElementById('nav-badge-messages');
-    if (unreadCount > 0) { msgBadge.textContent = unreadCount; msgBadge.style.display = 'inline'; }
-    else { msgBadge.style.display = 'none'; }
 
     const recentEl = document.getElementById('dashboard-recent');
     const recentPosts = posts.docs
@@ -313,12 +302,12 @@ const Admin = (() => {
       recentEl.innerHTML = '<p class="text-muted text-sm">Henüz içerik eklenmemiş. "İçerikler" bölümünden ilk içeriğinizi ekleyin.</p>';
     } else {
       recentEl.innerHTML = `<div class="admin-table-wrap"><table class="admin-table">
-        <thead><tr><th>Başlık</th><th>Kategori</th><th>Tarih</th><th>Son Güncelleyen</th></tr></thead>
+        <thead><tr><th>Başlık</th><th>Kategori</th><th class="mobile-hide">Tarih</th><th class="mobile-hide">Son Güncelleyen</th></tr></thead>
         <tbody>${recentPosts.map(p => `<tr>
           <td class="row-title">${esc(p.title)}</td>
           <td><span class="badge">${esc(p.category || '')}</span></td>
-          <td>${fmtDate(p.publishedAt)}</td>
-          <td class="row-updated-by">${p.lastUpdatedBy ? esc(p.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
+          <td class="mobile-hide">${fmtDate(p.publishedAt)}</td>
+          <td class="mobile-hide row-updated-by">${p.lastUpdatedBy ? esc(p.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
         </tr>`).join('')}</tbody></table></div>`;
     }
   }
@@ -336,12 +325,12 @@ const Admin = (() => {
       container.innerHTML = snap.docs.map(doc => {
         const p = doc.data();
         return `<tr>
-          <td>${p.coverImageUrl ? `<img src="${esc(p.coverImageUrl)}" class="row-thumb" alt="" />` : '<span class="row-thumb skeleton"></span>'}</td>
+          <td class="mobile-hide">${p.coverImageUrl ? `<img src="${esc(p.coverImageUrl)}" class="row-thumb" alt="" />` : '<span class="row-thumb skeleton"></span>'}</td>
           <td class="row-title">${esc(p.title)}</td>
           <td><span class="badge">${esc(p.category || '')}</span></td>
-          <td>${fmtDate(p.publishedAt)}</td>
-          <td>${p.featured ? '<span style="color:var(--color-accent)">★</span>' : '—'}</td>
-          <td class="row-updated-by">${p.lastUpdatedBy ? esc(p.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
+          <td class="mobile-hide">${fmtDate(p.publishedAt)}</td>
+          <td class="mobile-hide">${p.featured ? '<span style="color:var(--color-accent)">★</span>' : '—'}</td>
+          <td class="mobile-hide row-updated-by">${p.lastUpdatedBy ? esc(p.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
           <td class="row-actions">
             <button class="btn btn-xs btn-info" data-action="edit-post" data-id="${esc(doc.id)}">Düzenle</button>
             <button class="btn btn-xs btn-danger" data-action="delete-post" data-id="${esc(doc.id)}" data-title="${esc(p.title)}">Sil</button>
@@ -466,11 +455,11 @@ const Admin = (() => {
       container.innerHTML = snap.docs.map(doc => {
         const v = doc.data();
         return `<tr>
-          <td>${v.coverImageUrl ? `<img src="${esc(v.coverImageUrl)}" class="row-thumb" alt="" />` : '—'}</td>
+          <td class="mobile-hide">${v.coverImageUrl ? `<img src="${esc(v.coverImageUrl)}" class="row-thumb" alt="" />` : '—'}</td>
           <td class="row-title">${esc(v.title)}</td>
-          <td>${fmtDate(v.publishedAt)}</td>
-          <td>${v.featured ? '<span style="color:var(--color-accent)">★</span>' : '—'}</td>
-          <td class="row-updated-by">${v.lastUpdatedBy ? esc(v.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
+          <td class="mobile-hide">${fmtDate(v.publishedAt)}</td>
+          <td class="mobile-hide">${v.featured ? '<span style="color:var(--color-accent)">★</span>' : '—'}</td>
+          <td class="mobile-hide row-updated-by">${v.lastUpdatedBy ? esc(v.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
           <td class="row-actions">
             <button class="btn btn-xs btn-info" data-action="edit-video" data-id="${esc(doc.id)}">Düzenle</button>
             <button class="btn btn-xs btn-danger" data-action="delete-video" data-id="${esc(doc.id)}" data-title="${esc(v.title)}">Sil</button>
@@ -482,6 +471,30 @@ const Admin = (() => {
     }
   }
 
+  function extractVideoIdFromEmbed(embed) {
+    if (!embed || typeof embed !== 'string') return '';
+    const m = embed.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+    return m ? m[1] : '';
+  }
+
+  function embedToWatchUrl(embed) {
+    const id = extractVideoIdFromEmbed(embed);
+    return id ? 'https://www.youtube.com/watch?v=' + id : '';
+  }
+
+  function urlToEmbed(url) {
+    if (!url || typeof url !== 'string') return '';
+    let id = '';
+    const watchMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (watchMatch) id = watchMatch[1];
+    else {
+      const embedMatch = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+      if (embedMatch) id = embedMatch[1];
+    }
+    if (!id) return '';
+    return '<iframe src="https://www.youtube.com/embed/' + id + '" title="Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>';
+  }
+
   function showVideoForm(videoData = null) {
     document.getElementById('videos-list-view').classList.add('hidden');
     document.getElementById('videos-form-view').classList.remove('hidden');
@@ -490,11 +503,15 @@ const Admin = (() => {
     const form = document.getElementById('video-form');
     form.reset();
 
+    const urlInput = document.getElementById('video-youtubeUrl');
+    const embedInput = document.getElementById('video-youtubeEmbed');
+
     if (videoData) {
       form.title.value = videoData.title || '';
       form.slug.value = videoData.slug || '';
       form.coverImageUrl.value = videoData.coverImageUrl || '';
-      form.youtubeEmbed.value = videoData.youtubeEmbed || '';
+      embedInput.value = videoData.youtubeEmbed || '';
+      urlInput.value = embedToWatchUrl(videoData.youtubeEmbed);
       form.description.value = videoData.description || '';
       form.publishedAt.value = fmtDateInput(videoData.publishedAt);
       form.featured.checked = !!videoData.featured;
@@ -503,6 +520,11 @@ const Admin = (() => {
       form.publishedAt.value = new Date().toISOString().split('T')[0];
       updateImagePreview('video-cover-preview', '');
     }
+
+    urlInput.addEventListener('input', function syncEmbed() {
+      const embed = urlToEmbed(urlInput.value.trim());
+      embedInput.value = embed;
+    });
 
     form.title.addEventListener('input', function autoSlug() {
       if (!editingVideoId) form.slug.value = slugify(form.title.value);
@@ -520,12 +542,18 @@ const Admin = (() => {
     const title = form.title.value.trim();
     const slug = form.slug.value.trim() || slugify(title);
     const coverImageUrl = form.coverImageUrl.value.trim();
-    const youtubeEmbed = form.youtubeEmbed.value.trim();
+    let youtubeEmbed = form.youtubeEmbed.value.trim();
+    const urlInput = document.getElementById('video-youtubeUrl').value.trim();
+    if (!youtubeEmbed && urlInput) youtubeEmbed = urlToEmbed(urlInput);
     const description = form.description.value.trim();
     const publishedAt = form.publishedAt.value ? new Date(form.publishedAt.value) : new Date();
     const featured = form.featured.checked;
 
     if (!title) { toast('Başlık zorunludur.', 'error'); return; }
+    if (!youtubeEmbed || !extractVideoIdFromEmbed(youtubeEmbed)) {
+      toast('Geçerli bir YouTube video URL\'si girin. Örn: https://youtube.com/watch?v=VIDEO_ID', 'error');
+      return;
+    }
 
     const currentUser = auth.currentUser;
     const data = {
@@ -629,55 +657,6 @@ const Admin = (() => {
     } catch (err) { toast('Dışa aktarma hatası: ' + err.message, 'error'); }
   }
 
-  /* ═══════════════ MESSAGES ═══════════════ */
-  async function loadMessages() {
-    const container = document.getElementById('messages-list');
-    container.innerHTML = '<p class="text-muted text-sm">Yükleniyor...</p>';
-    try {
-      const snap = await db.collection('contact_messages').orderBy('sentAt', 'desc').get();
-      document.getElementById('msgs-count').textContent = `(${snap.size})`;
-      if (snap.empty) {
-        container.innerHTML = '<p class="text-muted">Henüz mesaj yok.</p>';
-        return;
-      }
-      container.innerHTML = snap.docs.map(doc => {
-        const m = doc.data();
-        return `<div class="msg-card ${m.read ? '' : 'unread'}">
-          <div class="msg-card-header">
-            <div><strong>${esc(m.name)}</strong></div>
-            <time>${fmtDate(m.sentAt)}</time>
-          </div>
-          <div class="msg-card-meta">${esc(m.email)} · ${esc(m.subject || 'Genel')}</div>
-          <div class="msg-card-body">${esc(m.message)}</div>
-          <div class="msg-card-actions">
-            <button class="btn btn-xs ${m.read ? 'btn-ghost' : 'btn-success'}" data-action="toggle-read" data-id="${esc(doc.id)}" data-read="${!m.read}">${m.read ? 'Okunmadı Yap' : 'Okundu Yap'}</button>
-            <button class="btn btn-xs btn-danger" data-action="delete-message" data-id="${esc(doc.id)}">Sil</button>
-          </div>
-        </div>`;
-      }).join('');
-    } catch (err) {
-      container.innerHTML = `<p style="color:var(--color-error)">Hata: ${esc(err.message)}</p>`;
-    }
-  }
-
-  async function toggleReadMessage(id, read) {
-    try {
-      await db.collection('contact_messages').doc(id).update({ read });
-      loadMessages();
-      loadDashboard();
-    } catch (err) { toast('Hata: ' + err.message, 'error'); }
-  }
-
-  async function deleteMessage(id) {
-    const ok = await confirmAction('Mesajı Sil', 'Bu mesajı silmek istediğinize emin misiniz?');
-    if (!ok) return;
-    try {
-      await db.collection('contact_messages').doc(id).delete();
-      toast('Mesaj silindi.', 'success');
-      loadMessages();
-    } catch (err) { toast('Hata: ' + err.message, 'error'); }
-  }
-
   /* ═══════════════ QUILL EDITOR ═══════════════ */
   function initQuill(content) {
     const container = document.getElementById('quill-editor');
@@ -716,8 +695,6 @@ const Admin = (() => {
     deleteVideo,
     deleteSubscriber,
     exportSubscribers,
-    toggleReadMessage,
-    deleteMessage,
     showPostForm: () => { editingPostId = null; showPostForm(); },
     savePost,
     cancelPostForm: hidePostForm,

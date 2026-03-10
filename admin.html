@@ -73,10 +73,6 @@
         <button class="sidebar-nav-item" data-section="subscribers">
           <span class="nav-icon">📬</span> Aboneler
         </button>
-        <button class="sidebar-nav-item" data-section="messages">
-          <span class="nav-icon">💬</span> Mesajlar
-          <span class="nav-badge" id="nav-badge-messages" style="display:none">0</span>
-        </button>
       </nav>
       <div class="sidebar-footer">
         <a href="index.html" id="site-link" target="_blank">↗ Siteye Git</a>
@@ -116,11 +112,6 @@
               <div class="stat-value" id="stat-subs">–</div>
               <div class="stat-label">Abone</div>
             </div>
-            <div class="stat-card">
-              <div class="stat-icon">💬</div>
-              <div class="stat-value" id="stat-msgs">–</div>
-              <div class="stat-label">Mesaj</div>
-            </div>
           </div>
 
           <div class="section-toolbar">
@@ -142,13 +133,13 @@
               <table class="admin-table">
                 <thead>
                   <tr>
-                    <th style="width:60px">Görsel</th>
+                    <th class="mobile-hide" style="width:60px">Görsel</th>
                     <th>Başlık</th>
                     <th>Kategori</th>
-                    <th>Tarih</th>
-                    <th>Öne Çıkan</th>
-                    <th>Son Güncelleyen</th>
-                    <th style="width:140px">İşlemler</th>
+                    <th class="mobile-hide">Tarih</th>
+                    <th class="mobile-hide">Öne Çıkan</th>
+                    <th class="mobile-hide">Son Güncelleyen</th>
+                    <th>İşlemler</th>
                   </tr>
                 </thead>
                 <tbody id="posts-table-body">
@@ -162,67 +153,75 @@
           <div id="posts-form-view" class="hidden">
             <div class="section-toolbar">
               <h2 id="post-form-title">Yeni İçerik</h2>
+              <button type="button" class="btn btn-ghost" data-cancel="post">← Listeye Dön</button>
             </div>
             <div class="admin-form">
               <form id="post-form">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="post-title" class="form-label">Başlık *</label>
-                    <input type="text" id="post-title" name="title" class="form-input" placeholder="İçerik başlığı" required />
+                <fieldset class="form-section">
+                  <legend class="form-section-title">Temel Bilgiler</legend>
+                  <div class="form-row">
+                    <div class="form-group form-group-flex">
+                      <label for="post-title" class="form-label">Başlık *</label>
+                      <input type="text" id="post-title" name="title" class="form-input" placeholder="Örn: Madencilik Sektöründe Yeni Dönem" required />
+                    </div>
+                    <div class="form-group form-group-flex">
+                      <label for="post-slug" class="form-label">URL Slug</label>
+                      <input type="text" id="post-slug" name="slug" class="form-input" placeholder="Başlıktan otomatik oluşturulur" />
+                      <span class="form-hint">post.html?slug=bu-deger</span>
+                    </div>
                   </div>
                   <div class="form-group">
-                    <label for="post-slug" class="form-label">Slug</label>
-                    <input type="text" id="post-slug" name="slug" class="form-input" placeholder="otomatik-olusturulur" />
+                    <label for="post-excerpt" class="form-label">Özet</label>
+                    <textarea id="post-excerpt" name="excerpt" class="form-textarea" rows="3" placeholder="Liste sayfasında görünecek kısa açıklama..."></textarea>
                   </div>
-                </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="post-category" class="form-label">Kategori</label>
+                      <select id="post-category" name="category" class="form-select">
+                        <option value="news">Haber</option>
+                        <option value="interview">Röportaj</option>
+                        <option value="story">Hikâye</option>
+                        <option value="update">Güncel</option>
+                        <option value="video">Video</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="post-tags" class="form-label">Etiketler</label>
+                      <input type="text" id="post-tags" name="tags" class="form-input" placeholder="Virgülle ayırın: madencilik, altın, sektör" />
+                    </div>
+                  </div>
+                </fieldset>
 
-                <div class="form-group">
-                  <label for="post-excerpt" class="form-label">Özet</label>
-                  <textarea id="post-excerpt" name="excerpt" class="form-textarea" rows="3" placeholder="Kısa açıklama..."></textarea>
-                </div>
-
-                <div class="form-row">
+                <fieldset class="form-section">
+                  <legend class="form-section-title">Görsel & Tarih</legend>
                   <div class="form-group">
-                    <label for="post-category" class="form-label">Kategori</label>
-                    <select id="post-category" name="category" class="form-select">
-                      <option value="news">Haber</option>
-                      <option value="interview">Röportaj</option>
-                      <option value="story">Hikâye</option>
-                      <option value="update">Güncel</option>
-                      <option value="video">Video</option>
-                    </select>
+                    <label for="post-coverImageUrl" class="form-label">Kapak Görseli URL</label>
+                    <input type="url" id="post-coverImageUrl" name="coverImageUrl" class="form-input" placeholder="https://example.com/gorsel.jpg" />
+                    <div class="image-preview" id="post-cover-preview" style="display:none"></div>
                   </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="post-publishedAt" class="form-label">Yayın Tarihi</label>
+                      <input type="date" id="post-publishedAt" name="publishedAt" class="form-input" />
+                    </div>
+                    <div class="form-group form-group-check">
+                      <label class="form-check">
+                        <input type="checkbox" id="post-featured" name="featured" />
+                        <span>Öne çıkan içerik olarak göster</span>
+                      </label>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <fieldset class="form-section">
+                  <legend class="form-section-title">İçerik</legend>
                   <div class="form-group">
-                    <label for="post-tags" class="form-label">Etiketler</label>
-                    <input type="text" id="post-tags" name="tags" class="form-input" placeholder="etiket1, etiket2, etiket3" />
+                    <label class="form-label">Metin (zengin metin editörü)</label>
+                    <div class="quill-wrap">
+                      <div id="quill-editor"></div>
+                    </div>
                   </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="post-publishedAt" class="form-label">Yayın Tarihi</label>
-                    <input type="date" id="post-publishedAt" name="publishedAt" class="form-input" />
-                  </div>
-                  <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:var(--space-5);">
-                    <label class="form-check">
-                      <input type="checkbox" id="post-featured" name="featured" />
-                      <span>Öne Çıkan İçerik</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="post-coverImageUrl" class="form-label">Kapak Görseli (URL)</label>
-                  <input type="url" id="post-coverImageUrl" name="coverImageUrl" class="form-input" placeholder="https://ornek.com/gorsel.jpg" />
-                  <div class="image-preview" id="post-cover-preview" style="display:none"></div>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">İçerik</label>
-                  <div class="quill-wrap">
-                    <div id="quill-editor"></div>
-                  </div>
-                </div>
+                </fieldset>
 
                 <div class="form-actions">
                   <button type="submit" id="save-post-btn" class="btn btn-primary">Kaydet</button>
@@ -246,12 +245,12 @@
               <table class="admin-table">
                 <thead>
                   <tr>
-                    <th style="width:60px">Görsel</th>
+                    <th class="mobile-hide" style="width:60px">Görsel</th>
                     <th>Başlık</th>
-                    <th>Tarih</th>
-                    <th>Öne Çıkan</th>
-                    <th>Son Güncelleyen</th>
-                    <th style="width:140px">İşlemler</th>
+                    <th class="mobile-hide">Tarih</th>
+                    <th class="mobile-hide">Öne Çıkan</th>
+                    <th class="mobile-hide">Son Güncelleyen</th>
+                    <th>İşlemler</th>
                   </tr>
                 </thead>
                 <tbody id="videos-table-body">
@@ -265,48 +264,54 @@
           <div id="videos-form-view" class="hidden">
             <div class="section-toolbar">
               <h2 id="video-form-title">Yeni Video</h2>
+              <button type="button" class="btn btn-ghost" data-cancel="video">← Listeye Dön</button>
             </div>
             <div class="admin-form">
               <form id="video-form">
-                <div class="form-row">
+                <fieldset class="form-section">
+                  <legend class="form-section-title">Video Bilgileri</legend>
                   <div class="form-group">
-                    <label for="video-title" class="form-label">Başlık *</label>
-                    <input type="text" id="video-title" name="title" class="form-input" placeholder="Video başlığı" required />
+                    <label for="video-youtubeUrl" class="form-label">YouTube Video URL *</label>
+                    <input type="url" id="video-youtubeUrl" class="form-input" placeholder="https://www.youtube.com/watch?v=VIDEO_ID veya https://youtu.be/VIDEO_ID" />
+                    <span class="form-hint">YouTube'dan videonun linkini kopyalayıp yapıştırın. Otomatik olarak embed formatına dönüştürülür.</span>
+                    <input type="hidden" id="video-youtubeEmbed" name="youtubeEmbed" />
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group form-group-flex">
+                      <label for="video-title" class="form-label">Başlık *</label>
+                      <input type="text" id="video-title" name="title" class="form-input" placeholder="Örn: Madencilik Röportajı - Bölüm 1" required />
+                    </div>
+                    <div class="form-group form-group-flex">
+                      <label for="video-slug" class="form-label">URL Slug</label>
+                      <input type="text" id="video-slug" name="slug" class="form-input" placeholder="Başlıktan otomatik oluşturulur" />
+                    </div>
                   </div>
                   <div class="form-group">
-                    <label for="video-slug" class="form-label">Slug</label>
-                    <input type="text" id="video-slug" name="slug" class="form-input" placeholder="otomatik-olusturulur" />
+                    <label for="video-description" class="form-label">Açıklama</label>
+                    <textarea id="video-description" name="description" class="form-textarea" rows="4" placeholder="Video detay sayfasında görünecek açıklama..."></textarea>
                   </div>
-                </div>
+                </fieldset>
 
-                <div class="form-group">
-                  <label for="video-youtubeEmbed" class="form-label">YouTube Embed (iframe kodu)</label>
-                  <textarea id="video-youtubeEmbed" name="youtubeEmbed" class="form-textarea" rows="3" placeholder='<iframe src="https://www.youtube.com/embed/VIDEO_ID" ...></iframe>'></textarea>
-                </div>
-
-                <div class="form-group">
-                  <label for="video-description" class="form-label">Açıklama</label>
-                  <textarea id="video-description" name="description" class="form-textarea" rows="4" placeholder="Video hakkında kısa açıklama..."></textarea>
-                </div>
-
-                <div class="form-row">
+                <fieldset class="form-section">
+                  <legend class="form-section-title">Görsel & Yayın</legend>
                   <div class="form-group">
-                    <label for="video-publishedAt" class="form-label">Yayın Tarihi</label>
-                    <input type="date" id="video-publishedAt" name="publishedAt" class="form-input" />
+                    <label for="video-coverImageUrl" class="form-label">Kapak Görseli URL</label>
+                    <input type="url" id="video-coverImageUrl" name="coverImageUrl" class="form-input" placeholder="https://example.com/kapak.jpg (opsiyonel)" />
+                    <div class="image-preview" id="video-cover-preview" style="display:none"></div>
                   </div>
-                  <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:var(--space-5);">
-                    <label class="form-check">
-                      <input type="checkbox" id="video-featured" name="featured" />
-                      <span>Öne Çıkan Video</span>
-                    </label>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="video-publishedAt" class="form-label">Yayın Tarihi</label>
+                      <input type="date" id="video-publishedAt" name="publishedAt" class="form-input" />
+                    </div>
+                    <div class="form-group form-group-check">
+                      <label class="form-check">
+                        <input type="checkbox" id="video-featured" name="featured" />
+                        <span>Öne çıkan video olarak göster</span>
+                      </label>
+                    </div>
                   </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="video-coverImageUrl" class="form-label">Kapak Görseli (URL)</label>
-                  <input type="url" id="video-coverImageUrl" name="coverImageUrl" class="form-input" placeholder="https://ornek.com/gorsel.jpg" />
-                  <div class="image-preview" id="video-cover-preview" style="display:none"></div>
-                </div>
+                </fieldset>
 
                 <div class="form-actions">
                   <button type="submit" id="save-video-btn" class="btn btn-primary">Kaydet</button>
@@ -336,16 +341,6 @@
                 <tr><td colspan="3" class="table-empty">Yükleniyor...</td></tr>
               </tbody>
             </table>
-          </div>
-        </section>
-
-        <!-- ═══════ MESSAGES ═══════ -->
-        <section class="admin-section hidden" id="section-messages">
-          <div class="section-toolbar">
-            <h2>Mesajlar <small class="text-muted text-sm" id="msgs-count"></small></h2>
-          </div>
-          <div id="messages-list">
-            <p class="text-muted text-sm">Yükleniyor...</p>
           </div>
         </section>
 
