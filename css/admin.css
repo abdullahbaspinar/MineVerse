@@ -1,12 +1,23 @@
 /* admin.css – Admin panel styles */
 
+/* ── Base: Admin pages use full viewport ── */
+body.admin-page {
+  overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 /* ── Layout ── */
 .admin-login {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--color-bg);
+  padding: var(--space-4);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 .login-card {
   width: 100%;
@@ -15,10 +26,9 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
-  margin-inline: var(--space-4);
 }
 @media (min-width: 480px) {
-  .login-card { padding: var(--space-10); margin-inline: 0; }
+  .login-card { padding: var(--space-10); }
 }
 .login-card .logo { margin-bottom: var(--space-2); display: flex; justify-content: center; }
 .login-card .logo img { height: 64px; filter: var(--logo-filter); }
@@ -45,11 +55,15 @@
 .admin-shell {
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  overflow: hidden;
 }
 
 /* ── Sidebar ── */
 .admin-sidebar {
   width: 260px;
+  min-width: 260px;
   background: var(--color-bg-elevated);
   border-right: 1px solid var(--color-border);
   display: flex;
@@ -59,6 +73,9 @@
   left: 0;
   z-index: var(--z-sticky);
   transition: transform var(--transition-base);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
 }
 .sidebar-brand {
   padding: var(--space-6);
@@ -73,6 +90,8 @@
   flex-direction: column;
   gap: var(--space-1);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 .sidebar-nav-item {
   display: flex;
@@ -132,6 +151,9 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
+  min-width: 0;
+  overflow: hidden;
 }
 .admin-header {
   position: sticky;
@@ -141,10 +163,12 @@
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-border);
   padding: var(--space-4) var(--space-8);
+  padding-top: calc(var(--space-4) + env(safe-area-inset-top));
   display: flex;
   align-items: center;
   justify-content: space-between;
   z-index: var(--z-dropdown);
+  flex-shrink: 0;
 }
 .admin-header h1 { font-size: var(--text-xl); margin: 0; }
 .admin-header-actions { display: flex; gap: var(--space-3); align-items: center; }
@@ -152,17 +176,24 @@
 .admin-content {
   flex: 1;
   padding: var(--space-8);
+  padding-bottom: calc(var(--space-8) + env(safe-area-inset-bottom));
   overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
+  -webkit-overflow-scrolling: touch;
 }
 .mobile-menu-toggle {
   display: none;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   color: var(--color-text);
   font-size: var(--text-xl);
   cursor: pointer;
   padding: var(--space-2);
+  min-width: 44px;
+  min-height: 44px;
 }
 
 /* ── Dashboard Stats ── */
@@ -198,6 +229,7 @@
 /* ── Admin Tables ── */
 .admin-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -422,6 +454,8 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
+  padding-top: calc(var(--space-4) + env(safe-area-inset-top));
+  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition-fast);
@@ -434,6 +468,9 @@
   padding: var(--space-8);
   max-width: 480px;
   width: 100%;
+  max-height: calc(100vh - var(--space-8));
+  max-height: calc(100dvh - var(--space-8));
+  overflow-y: auto;
 }
 .admin-modal h3 { margin-bottom: var(--space-3); }
 .admin-modal p { color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--space-6); }
@@ -489,7 +526,7 @@
    ══════════════════════════════════════════════ */
 @media (max-width: 768px) {
   /* Sidebar → offcanvas drawer */
-  .mobile-menu-toggle { display: block; }
+  .mobile-menu-toggle { display: flex; }
   .admin-sidebar {
     transform: translateX(-100%);
     width: 280px;
@@ -519,8 +556,9 @@
   .form-section { margin-bottom: var(--space-6); }
   .form-section-title { font-size: var(--text-xs); margin-bottom: var(--space-3); }
   .form-group-check { padding-bottom: var(--space-4); }
-  .form-actions { flex-wrap: wrap; }
-  .form-actions .btn { flex: 1; min-width: 120px; }
+  .form-actions { flex-wrap: wrap; gap: var(--space-2); }
+  .form-actions .btn { flex: 1; min-width: 120px; min-height: 44px; }
+  .section-toolbar .btn { min-height: 44px; }
   .section-toolbar .btn[data-cancel] { width: 100%; }
 
   /* Tables: smaller text, hidden columns */
@@ -543,8 +581,9 @@
   }
   .admin-table .row-actions .btn-xs {
     width: 100%;
+    min-height: 36px;
     text-align: center;
-    padding: var(--space-1) var(--space-2);
+    padding: var(--space-2) var(--space-3);
   }
 
   /* Image preview smaller */
@@ -555,8 +594,12 @@
   .quill-wrap .ql-editor { min-height: 180px; }
   .quill-wrap .ql-toolbar { flex-wrap: wrap; padding: var(--space-2); }
 
-  /* Toast full width */
-  .admin-toast { right: var(--space-3); left: var(--space-3); bottom: var(--space-3); }
+  /* Toast full width, above safe area */
+  .admin-toast {
+    right: var(--space-3);
+    left: var(--space-3);
+    bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+  }
   .admin-toast .toast-item { padding: var(--space-3) var(--space-4); }
 
   /* Modal smaller padding */
@@ -581,7 +624,8 @@
 
   .admin-form { padding: var(--space-3); }
   .form-group { margin-bottom: var(--space-4); }
-  .form-input, .form-textarea, .form-select { min-height: 44px; padding: var(--space-3); }
+  .form-input, .form-select { min-height: 44px; padding: var(--space-3); }
+  .form-textarea { min-height: 100px; padding: var(--space-3); }
   .form-hint { font-size: 10px; }
 
   .admin-table .row-title { max-width: 100px; }
@@ -589,6 +633,7 @@
   /* Login card tighter */
   .login-card { padding: var(--space-5); }
   .login-card .logo img { height: 48px; }
+  .login-card .btn { min-height: 44px; }
 }
 
 /* ══════════════════════════════════════════════
