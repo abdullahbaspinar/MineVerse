@@ -225,26 +225,6 @@
   transition: color var(--transition-fast);
 }
 .footer-links a:hover { color: var(--color-accent); }
-.footer-newsletter-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-.footer-newsletter-form input {
-  flex: 1;
-  min-width: 0;
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
-  color: var(--color-text);
-  font-size: var(--text-sm);
-}
-.footer-newsletter-form input::placeholder { color: var(--color-text-dim); }
-.footer-newsletter-form input:focus {
-  outline: none;
-  border-color: var(--color-accent);
-}
 .footer-bottom {
   margin-top: var(--space-8);
   padding-top: var(--space-6);

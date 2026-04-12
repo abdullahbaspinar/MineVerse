@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
   Router.setActiveNav();
   initMobileNav();
   initThemeToggle();
-  initFooterNewsletter();
 });
 
 /* ── Theme Toggle ── */
@@ -66,38 +65,5 @@ function initMobileNav() {
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') mobileNav.classList.remove('open');
-  });
-}
-
-/* ── Footer Newsletter (mini form) → Firebase ── */
-function initFooterNewsletter() {
-  const form = document.getElementById('footer-newsletter-form');
-  if (!form) return;
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const input = form.querySelector('input[type="email"]');
-    if (!input || !input.value.trim()) return;
-
-    const email = input.value.trim();
-    if (!isValidEmail(email)) { input.value = ''; input.placeholder = 'Geçersiz e-posta'; setTimeout(() => { input.placeholder = 'E-posta adresiniz'; }, 3000); return; }
-    if (!RateLimiter.check('footer_newsletter')) { input.placeholder = 'Lütfen biraz bekleyin...'; setTimeout(() => { input.placeholder = 'E-posta adresiniz'; }, 3000); return; }
-
-    const btn = form.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.textContent = '...';
-
-    const result = await FirebaseHelper.addSubscriber(email);
-
-    input.value = '';
-    btn.disabled = false;
-    btn.textContent = 'Katıl';
-
-    if (result.success) {
-      input.placeholder = result.alreadyExists ? 'Zaten abonesiniz ✓' : 'Teşekkürler! ✓';
-    } else {
-      input.placeholder = 'Hata oluştu, tekrar deneyin';
-    }
-    setTimeout(() => { input.placeholder = 'E-posta adresiniz'; }, 3000);
   });
 }

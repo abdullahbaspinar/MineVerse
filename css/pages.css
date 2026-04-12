@@ -269,32 +269,6 @@
 .about-feature h3 { font-size: var(--text-lg); margin-bottom: var(--space-2); }
 .about-feature p  { color: var(--color-text-muted); font-size: var(--text-sm); margin: 0; }
 
-/* ═══════════════ NEWSLETTER ═══════════════ */
-.newsletter-hero {
-  text-align: center;
-  max-width: var(--max-width-sm);
-  margin-inline: auto;
-  padding-block: var(--space-16);
-}
-.newsletter-hero h1 { margin-bottom: var(--space-4); }
-.newsletter-hero p  { color: var(--color-text-muted); margin-bottom: var(--space-8); }
-.newsletter-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  max-width: 400px;
-  margin-inline: auto;
-}
-@media (min-width: 480px) {
-  .newsletter-form { flex-direction: row; }
-  .newsletter-form .form-input { flex: 1; }
-}
-.newsletter-success {
-  text-align: center;
-  padding: var(--space-10);
-}
-.newsletter-success h2 { color: var(--color-success); margin-bottom: var(--space-3); }
-
 /* ═══════════════ CONTACT ═══════════════ */
 .contact-grid {
   display: grid;

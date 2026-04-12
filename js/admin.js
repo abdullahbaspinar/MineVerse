@@ -144,11 +144,10 @@ const Admin = (() => {
     if (name === 'dashboard') loadDashboard();
     else if (name === 'posts') { hidePostForm(); loadPosts(); }
     else if (name === 'videos') { hideVideoForm(); loadVideos(); }
-    else if (name === 'subscribers') loadSubscribers();
   }
 
   function sectionTitle(name) {
-    const map = { dashboard: 'Dashboard', posts: 'İçerik Yönetimi', videos: 'Video Yönetimi', subscribers: 'Aboneler' };
+    const map = { dashboard: 'Dashboard', posts: 'İçerik Yönetimi', videos: 'Video Yönetimi' };
     return map[name] || name;
   }
 
@@ -186,10 +185,8 @@ const Admin = (() => {
         case 'delete-post': deletePost(id, title); break;
         case 'edit-video': editVideo(id); break;
         case 'delete-video': deleteVideo(id, title); break;
-        case 'delete-subscriber': deleteSubscriber(id); break;
         case 'new-post': editingPostId = null; showPostForm(); break;
         case 'new-video': editingVideoId = null; showVideoForm(); break;
-        case 'export-subs': exportSubscribers(); break;
       }
     });
 
@@ -311,15 +308,13 @@ const Admin = (() => {
 
   /* ═══════════════ DASHBOARD ═══════════════ */
   async function loadDashboard() {
-    const [posts, videos, subs] = await Promise.all([
+    const [posts, videos] = await Promise.all([
       db.collection('posts').get(),
       db.collection('videos').get(),
-      db.collection('newsletter_subscribers').get(),
     ]);
 
     document.getElementById('stat-posts').textContent = posts.size;
     document.getElementById('stat-videos').textContent = videos.size;
-    document.getElementById('stat-subs').textContent = subs.size;
 
     const recentEl = document.getElementById('dashboard-recent');
     const recentPosts = posts.docs
@@ -638,62 +633,6 @@ const Admin = (() => {
     } catch (err) { toast('Silme hatası: ' + err.message, 'error'); }
   }
 
-  /* ═══════════════ SUBSCRIBERS ═══════════════ */
-  async function loadSubscribers() {
-    const container = document.getElementById('subscribers-table-body');
-    container.innerHTML = '<tr><td colspan="3" class="table-empty">Yükleniyor...</td></tr>';
-    try {
-      const snap = await db.collection('newsletter_subscribers').orderBy('subscribedAt', 'desc').get();
-      document.getElementById('subs-count').textContent = `(${snap.size})`;
-      if (snap.empty) {
-        container.innerHTML = '<tr><td colspan="3" class="table-empty">Henüz abone yok.</td></tr>';
-        return;
-      }
-      container.innerHTML = snap.docs.map(doc => {
-        const s = doc.data();
-        return `<tr>
-          <td>${esc(s.email)}</td>
-          <td>${fmtDate(s.subscribedAt)}</td>
-          <td class="row-actions">
-            <button class="btn btn-xs btn-danger" data-action="delete-subscriber" data-id="${esc(doc.id)}">Sil</button>
-          </td>
-        </tr>`;
-      }).join('');
-    } catch (err) {
-      container.innerHTML = `<tr><td colspan="3" class="table-empty" style="color:var(--color-error)">Hata: ${esc(err.message)}</td></tr>`;
-    }
-  }
-
-  async function deleteSubscriber(id) {
-    const ok = await confirmAction('Aboneyi Sil', 'Bu aboneyi silmek istediğinize emin misiniz?');
-    if (!ok) return;
-    try {
-      await db.collection('newsletter_subscribers').doc(id).delete();
-      toast('Abone silindi.', 'success');
-      loadSubscribers();
-    } catch (err) { toast('Hata: ' + err.message, 'error'); }
-  }
-
-  async function exportSubscribers() {
-    try {
-      const snap = await db.collection('newsletter_subscribers').orderBy('subscribedAt', 'desc').get();
-      const rows = [['E-posta', 'Kayıt Tarihi']];
-      snap.docs.forEach(doc => {
-        const s = doc.data();
-        rows.push([s.email, fmtDate(s.subscribedAt)]);
-      });
-      const csv = rows.map(r => r.join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'mineverse_aboneler_' + new Date().toISOString().split('T')[0] + '.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-      toast('CSV indirildi!', 'success');
-    } catch (err) { toast('Dışa aktarma hatası: ' + err.message, 'error'); }
-  }
-
   /* ═══════════════ QUILL EDITOR ═══════════════ */
   function initQuill(content) {
     const container = document.getElementById('quill-editor');
@@ -730,8 +669,6 @@ const Admin = (() => {
     deletePost,
     editVideo,
     deleteVideo,
-    deleteSubscriber,
-    exportSubscribers,
     showPostForm: () => { editingPostId = null; showPostForm(); },
     savePost,
     cancelPostForm: hidePostForm,

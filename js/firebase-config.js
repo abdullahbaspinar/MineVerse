@@ -97,29 +97,6 @@ const FirebaseHelper = (() => {
     }
   }
 
-  async function addSubscriber(email) {
-    if (!db) return { success: false, error: 'Firebase bağlantısı yok' };
-    try {
-      const snapshot = await db.collection('newsletter_subscribers')
-        .where('email', '==', email)
-        .limit(1)
-        .get();
-
-      if (!snapshot.empty) {
-        return { success: true, alreadyExists: true };
-      }
-
-      await db.collection('newsletter_subscribers').add({
-        email: email,
-        subscribedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-      return { success: true, alreadyExists: false };
-    } catch (err) {
-      console.error('[Firebase] addSubscriber error:', err);
-      return { success: false, error: err.message };
-    }
-  }
-
   async function addContactMessage({ name, email, subject, message }) {
     if (!db) return { success: false, error: 'Firebase bağlantısı yok' };
     try {
@@ -138,5 +115,5 @@ const FirebaseHelper = (() => {
     }
   }
 
-  return { addSubscriber, addContactMessage, uploadCoverImage };
+  return { addContactMessage, uploadCoverImage };
 })();
