@@ -16,7 +16,11 @@ try {
   firebase.initializeApp(firebaseConfig);
   db = firebase.firestore();
   if (typeof firebase.storage === 'function') {
-    fbStorage = firebase.storage();
+    try {
+      fbStorage = firebase.storage();
+    } catch (storageErr) {
+      console.error('[Firebase] Storage başlatılamadı:', storageErr);
+    }
   }
 } catch (err) {
   console.error('[Firebase] Initialization failed:', err);
@@ -78,7 +82,18 @@ const FirebaseHelper = (() => {
       return { success: true, url };
     } catch (err) {
       console.error('[Firebase] uploadCoverImage error:', err);
-      return { success: false, error: err.message || 'Yükleme başarısız.' };
+      const code = err && err.code;
+      let msg = (err && err.message) || 'Yükleme başarısız.';
+      if (code === 'storage/unauthorized') {
+        msg = 'Storage izni yok: Giriş yapın ve Firebase Storage kurallarında yazma iznini doğrulayın.';
+      } else if (code === 'storage/canceled') {
+        msg = 'Yükleme iptal edildi.';
+      } else if (code === 'storage/retry-limit-exceeded') {
+        msg = 'Ağ hatası: bir süre sonra tekrar deneyin.';
+      } else if (code === 'storage/invalid-checksum') {
+        msg = 'Dosya aktarımı bozuldu; tekrar seçin.';
+      }
+      return { success: false, error: msg };
     }
   }
 

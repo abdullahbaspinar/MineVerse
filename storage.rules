@@ -1,7 +1,11 @@
 rules_version = '2';
 
 // Firebase Console → Storage → Rules → yapıştır → Yayınla
-// Yerel: firebase deploy --only storage (firebase.json tanımlıysa)
+//
+// ÖNEMLİ: Ziyaretçilerin sitede kapak görsellerini görebilmesi için
+// `allow read` bu klasörlerde herkese açık olmalı (if true).
+// Sadece `request.auth != null` ile okuma yaparsanız, canlı sitede
+// görseller 403/boş kalır; yüklemek adminde çalışsa bile liste sayfasında görünmez.
 
 service firebase.storage {
   match /b/{bucket}/o {
