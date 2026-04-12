@@ -98,15 +98,35 @@ const Render = (() => {
 
   /* ═══════════════ PORTABLE TEXT RENDERER ═══════════════ */
 
+  /** True if HTML has no visible text and no meaningful embeds (boş Quill: <p><br></p> vb.) */
+  function isHtmlContentEmpty(html) {
+    if (!html || typeof html !== 'string' || !html.trim()) return true;
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const root = doc.body;
+    const text = (root.textContent || '').replace(/\u00a0/g, ' ').trim();
+    if (text.length > 0) return false;
+    return !root.querySelector('img, iframe, video, audio, table, svg, picture, hr, ul, ol, pre, blockquote');
+  }
+
   /**
    * Render post body. Handles two formats:
    * - string (HTML from Firestore / Quill editor)
    * - array  (Portable Text from Sanity / mock data)
+   * excerpt: liste kartında görünen özet; body boşsa detayda gösterilir.
    */
-  function renderBody(body) {
-    if (!body) return '<p class="text-muted">İçerik bulunamadı.</p>';
-    if (typeof body === 'string') return sanitizeHtml(body);
-    if (Array.isArray(body)) return renderPortableText(body);
+  function renderBody(body, excerpt = '') {
+    if (typeof body === 'string' && body.trim()) {
+      const sanitized = sanitizeHtml(body);
+      if (!isHtmlContentEmpty(sanitized)) return sanitized;
+    }
+    if (Array.isArray(body) && body.length) {
+      const portable = renderPortableText(body);
+      if (!isHtmlContentEmpty(portable)) return portable;
+    }
+    const ex = typeof excerpt === 'string' ? excerpt.trim() : '';
+    if (ex) {
+      return `<div class="post-body post-body--from-excerpt"><p>${escapeHtml(ex)}</p></div>`;
+    }
     return '<p class="text-muted">İçerik bulunamadı.</p>';
   }
 

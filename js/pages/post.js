@@ -46,9 +46,9 @@ async function initPostDetail() {
       heroEl.querySelector('h1').textContent = post.title;
     }
 
-    /* Article body */
+    /* Article body (body yoksa listedeki özet metni gösterilir) */
     if (articleEl) {
-      articleEl.innerHTML = Render.renderBody(post.body);
+      articleEl.innerHTML = Render.renderBody(post.body, post.excerpt);
     }
 
     /* Tags */
