@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', initPostsPage);
 let postsState = {
   all: [],
   filtered: [],
-  category: 'all',
   query: '',
   page: 1,
 };
@@ -14,14 +13,11 @@ async function initPostsPage() {
   API.clearCache();
   const grid = document.getElementById('posts-grid');
   const searchInput = document.getElementById('posts-search');
-  const filterChips = document.getElementById('filter-chips');
 
   if (!grid) return;
 
-  postsState.category = Router.getParam('category') || 'all';
   postsState.query = Router.getParam('q') || '';
 
-  renderFilterChips(filterChips);
   if (searchInput && postsState.query) searchInput.value = postsState.query;
 
   searchInput?.addEventListener('input', debounce((e) => {
@@ -50,36 +46,8 @@ async function loadAllPosts() {
   }
 }
 
-function renderFilterChips(container) {
-  if (!container) return;
-  container.innerHTML = '';
-  Object.entries(CONFIG.categories).forEach(([key, label]) => {
-    const btn = document.createElement('button');
-    btn.className = `filter-chip${key === postsState.category ? ' active' : ''}`;
-    btn.textContent = label;
-    btn.setAttribute('aria-pressed', key === postsState.category);
-    btn.addEventListener('click', () => {
-      postsState.category = key;
-      postsState.page = 1;
-      Router.setParams({ category: key === 'all' ? null : key });
-      container.querySelectorAll('.filter-chip').forEach(c => {
-        c.classList.remove('active');
-        c.setAttribute('aria-pressed', 'false');
-      });
-      btn.classList.add('active');
-      btn.setAttribute('aria-pressed', 'true');
-      filterAndRender();
-    });
-    container.appendChild(btn);
-  });
-}
-
 function filterAndRender() {
   let results = postsState.all;
-
-  if (postsState.category !== 'all') {
-    results = results.filter(p => p.category === postsState.category);
-  }
 
   if (postsState.query.trim()) {
     const q = postsState.query.toLowerCase();

@@ -152,7 +152,6 @@ const Render = (() => {
 
   function postCard(post, { featured = false } = {}) {
     const slug = post.slug?.current || post.slug || '';
-    const cat = CONFIG.categories[post.category] || post.category || '';
     const el = document.createElement('article');
     el.className = `card fade-in${featured ? ' card-featured' : ''}`;
 
@@ -161,7 +160,6 @@ const Render = (() => {
         <img src="${escapeHtml(safeUrl(post.coverImageUrl))}" alt="${escapeHtml(post.title)}" loading="lazy" />
       </div>
       <div class="card-body">
-        ${cat ? `<span class="badge">${escapeHtml(cat)}</span>` : ''}
         <h3><a href="post.html?slug=${encodeURIComponent(slug)}">${escapeHtml(post.title)}</a></h3>
         <p class="card-excerpt">${escapeHtml(post.excerpt)}</p>
         <div class="card-meta">

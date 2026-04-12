@@ -8,9 +8,6 @@ async function initHome() {
   await Promise.all([
     renderFeatured(),
     renderRecent(),
-    renderInterviews(),
-    renderStories(),
-    renderUpdates(),
     renderHomeVideos(),
   ]);
 
@@ -68,7 +65,7 @@ async function renderRecent() {
   container.appendChild(Render.skeletonCards(3));
 
   try {
-    const posts = await API.getRecentPosts(6);
+    const posts = await API.getRecentPosts(12);
     container.innerHTML = '';
     if (!posts.length) {
       const err = API.getLastError();
@@ -83,57 +80,6 @@ async function renderRecent() {
   } catch (e) {
     container.innerHTML = '';
     container.appendChild(Render.errorState('Beklenmeyen hata: ' + (e.message || e)));
-  }
-}
-
-async function renderInterviews() {
-  const section = document.getElementById('interview-posts')?.closest('.home-section');
-  const container = document.getElementById('interview-posts');
-  if (!container) return;
-  container.appendChild(Render.skeletonCards(3));
-
-  try {
-    const posts = await API.getInterviews(3);
-    container.innerHTML = '';
-    if (!posts.length) { if (section) section.style.display = 'none'; return; }
-    posts.forEach(p => container.appendChild(Render.postCard(p)));
-  } catch {
-    container.innerHTML = '';
-    if (section) section.style.display = 'none';
-  }
-}
-
-async function renderStories() {
-  const section = document.getElementById('story-posts')?.closest('.home-section');
-  const container = document.getElementById('story-posts');
-  if (!container) return;
-  container.appendChild(Render.skeletonCards(3));
-
-  try {
-    const posts = await API.getStories(3);
-    container.innerHTML = '';
-    if (!posts.length) { if (section) section.style.display = 'none'; return; }
-    posts.forEach(p => container.appendChild(Render.postCard(p)));
-  } catch {
-    container.innerHTML = '';
-    if (section) section.style.display = 'none';
-  }
-}
-
-async function renderUpdates() {
-  const section = document.getElementById('update-posts')?.closest('.home-section');
-  const container = document.getElementById('update-posts');
-  if (!container) return;
-  container.appendChild(Render.skeletonCards(3));
-
-  try {
-    const posts = await API.getUpdates(3);
-    container.innerHTML = '';
-    if (!posts.length) { if (section) section.style.display = 'none'; return; }
-    posts.forEach(p => container.appendChild(Render.postCard(p)));
-  } catch {
-    container.innerHTML = '';
-    if (section) section.style.display = 'none';
   }
 }
 

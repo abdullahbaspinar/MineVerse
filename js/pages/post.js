@@ -40,9 +40,7 @@ async function initPostDetail() {
         heroBg.classList.add('has-image');
       }
 
-      const cat = CONFIG.categories[post.category] || post.category || '';
       heroEl.querySelector('.post-meta').innerHTML = `
-        ${cat ? `<span class="badge">${Render.escapeHtml(cat)}</span>` : ''}
         <time datetime="${Render.escapeHtml(post.publishedAt)}">${Render.formatDate(post.publishedAt)}</time>
       `;
       heroEl.querySelector('h1').textContent = post.title;
