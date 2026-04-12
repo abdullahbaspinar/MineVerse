@@ -271,6 +271,34 @@ const Admin = (() => {
     }
   }
 
+  function setupCoverStorageUpload() {
+    [
+      { prefix: 'post', folder: 'posts' },
+      { prefix: 'video', folder: 'videos' },
+    ].forEach(({ prefix, folder }) => {
+      const fileInput = document.getElementById(`${prefix}-cover-file`);
+      const statusEl = document.getElementById(`${prefix}-cover-upload-status`);
+      const urlInput = document.getElementById(`${prefix}-coverImageUrl`);
+      if (!fileInput || !urlInput) return;
+      fileInput.addEventListener('change', async () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        if (statusEl) statusEl.textContent = 'Yükleniyor...';
+        const result = await FirebaseHelper.uploadCoverImage(folder, file);
+        if (result.success) {
+          urlInput.value = result.url;
+          updateImagePreview(`${prefix}-cover-preview`, result.url);
+          if (statusEl) statusEl.textContent = 'Yüklendi ✓';
+          toast('Görsel Storage’a yüklendi.', 'success');
+        } else {
+          if (statusEl) statusEl.textContent = '';
+          toast(result.error, 'error');
+        }
+        fileInput.value = '';
+      });
+    });
+  }
+
   function setupImagePreviews() {
     document.getElementById('post-coverImageUrl')?.addEventListener('input', (e) => {
       updateImagePreview('post-cover-preview', e.target.value);
@@ -278,6 +306,7 @@ const Admin = (() => {
     document.getElementById('video-coverImageUrl')?.addEventListener('input', (e) => {
       updateImagePreview('video-cover-preview', e.target.value);
     });
+    setupCoverStorageUpload();
   }
 
   /* ═══════════════ DASHBOARD ═══════════════ */
@@ -349,6 +378,10 @@ const Admin = (() => {
 
     const form = document.getElementById('post-form');
     form.reset();
+    const postCoverFile = document.getElementById('post-cover-file');
+    if (postCoverFile) postCoverFile.value = '';
+    const postCoverStatus = document.getElementById('post-cover-upload-status');
+    if (postCoverStatus) postCoverStatus.textContent = '';
 
     if (postData) {
       form.title.value = postData.title || '';
@@ -502,6 +535,10 @@ const Admin = (() => {
 
     const form = document.getElementById('video-form');
     form.reset();
+    const videoCoverFile = document.getElementById('video-cover-file');
+    if (videoCoverFile) videoCoverFile.value = '';
+    const videoCoverStatus = document.getElementById('video-cover-upload-status');
+    if (videoCoverStatus) videoCoverStatus.textContent = '';
 
     const urlInput = document.getElementById('video-youtubeUrl');
     const embedInput = document.getElementById('video-youtubeEmbed');

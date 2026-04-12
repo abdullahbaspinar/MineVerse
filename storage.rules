@@ -1,0 +1,17 @@
+rules_version = '2';
+
+// Firebase Console → Storage → Rules → yapıştır → Yayınla
+// Yerel: firebase deploy --only storage (firebase.json tanımlıysa)
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /covers/{collection}/{fileName} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && (collection == 'posts' || collection == 'videos')
+        && request.resource.size < 6 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null;
+    }
+  }
+}

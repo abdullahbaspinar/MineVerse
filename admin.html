@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Admin Panel – MineVerse</title>
   <meta name="robots" content="noindex, nofollow" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://cdn.quilljs.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com https://cdn.quilljs.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src 'self'; connect-src 'self' https://firestore.googleapis.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; object-src 'none'; base-uri 'self';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://cdn.quilljs.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com https://cdn.quilljs.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src 'self'; connect-src 'self' https://firestore.googleapis.com https://*.firebaseio.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; object-src 'none'; base-uri 'self';" />
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
 
@@ -195,8 +195,14 @@
                 <fieldset class="form-section">
                   <legend class="form-section-title">Görsel & Tarih</legend>
                   <div class="form-group">
-                    <label for="post-coverImageUrl" class="form-label">Kapak Görseli URL</label>
-                    <input type="url" id="post-coverImageUrl" name="coverImageUrl" class="form-input" placeholder="https://example.com/gorsel.jpg" />
+                    <label for="post-cover-file" class="form-label">Kapak görseli</label>
+                    <div class="cover-upload-row">
+                      <input type="file" id="post-cover-file" class="form-input" accept="image/jpeg,image/png,image/webp,image/gif" />
+                      <span class="form-hint cover-upload-status" id="post-cover-upload-status" aria-live="polite"></span>
+                    </div>
+                    <span class="form-hint">Bilgisayardan seçin; Firebase Storage’a yüklenir. İsterseniz aşağıya harici bir URL de yapıştırabilirsiniz.</span>
+                    <label for="post-coverImageUrl" class="form-label" style="margin-top:var(--space-3)">Kapak görseli URL (Storage veya harici)</label>
+                    <input type="url" id="post-coverImageUrl" name="coverImageUrl" class="form-input" placeholder="Yükleme sonrası otomatik dolar veya https://..." />
                     <div class="image-preview" id="post-cover-preview" style="display:none"></div>
                   </div>
                   <div class="form-row">
@@ -287,8 +293,14 @@
                 <fieldset class="form-section">
                   <legend class="form-section-title">Görsel & Yayın</legend>
                   <div class="form-group">
-                    <label for="video-coverImageUrl" class="form-label">Kapak Görseli URL</label>
-                    <input type="url" id="video-coverImageUrl" name="coverImageUrl" class="form-input" placeholder="https://example.com/kapak.jpg (opsiyonel)" />
+                    <label for="video-cover-file" class="form-label">Kapak görseli (opsiyonel)</label>
+                    <div class="cover-upload-row">
+                      <input type="file" id="video-cover-file" class="form-input" accept="image/jpeg,image/png,image/webp,image/gif" />
+                      <span class="form-hint cover-upload-status" id="video-cover-upload-status" aria-live="polite"></span>
+                    </div>
+                    <span class="form-hint">Bilgisayardan seçin; Firebase Storage’a yüklenir. İsterseniz yalnızca URL de girebilirsiniz.</span>
+                    <label for="video-coverImageUrl" class="form-label" style="margin-top:var(--space-3)">Kapak görseli URL (Storage veya harici)</label>
+                    <input type="url" id="video-coverImageUrl" name="coverImageUrl" class="form-input" placeholder="Yükleme sonrası otomatik dolar veya https://..." />
                     <div class="image-preview" id="video-cover-preview" style="display:none"></div>
                   </div>
                   <div class="form-row">
@@ -359,6 +371,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js" integrity="sha384-nMqKrgk2MOVr+J6K7dYFdt02ATuHV/Bqbpl7SQl+GYXyf1CHx9oLuiXNpVdd0rJh" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js" integrity="sha384-DRaDw8zunay8Id8djbfyBTcL38QknHkXONVwo0TBWCAQGSpIANj+4OSCTdxxaY5T" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js" integrity="sha384-I1LYojsZ5RM1cOda44Z2h42Qa6YfsQ1XkXxREnhp4ueYBR/4d1pG1K+NZM537Vsj" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-storage-compat.js" integrity="sha384-XgUhjZUY/4vSJ8bUS7DFmLGK73fbJgS+nlrQDEC5X3QBpGgO+597wN8Syegw3ONj" crossorigin="anonymous"></script>
 
   <!-- Quill Editor -->
   <script src="https://cdn.quilljs.com/1.3.7/quill.min.js" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
