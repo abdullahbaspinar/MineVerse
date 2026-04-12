@@ -1,6 +1,17 @@
-/* pages/contact.js – Contact form with Firebase Firestore */
+/* pages/contact.js – Contact form opens default mail client (mailto) */
 
 document.addEventListener('DOMContentLoaded', initContact);
+
+const CONTACT_SUBJECT_LABELS = {
+  general: 'Genel',
+  content: 'İçerik Önerisi',
+  interview: 'Röportaj Talebi',
+  collaboration: 'İşbirliği',
+  other: 'Diğer',
+};
+
+/** Many clients cap mailto URI length; keep a safe upper bound */
+const MAX_MAILTO_URI_LENGTH = 7000;
 
 function initContact() {
   const form = document.getElementById('contact-form');
@@ -8,12 +19,12 @@ function initContact() {
 
   if (!form) return;
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', (e) => {
     e.preventDefault();
     const data = new FormData(form);
     const name = (data.get('name') || '').trim();
     const email = (data.get('email') || '').trim();
-    const subject = data.get('subject');
+    const subjectKey = data.get('subject') || 'general';
     const message = (data.get('message') || '').trim();
 
     if (!name || !email || !message) {
@@ -33,22 +44,38 @@ function initContact() {
       return;
     }
 
+    const mailtoHref = buildMailtoHref({ name, email, subjectKey, message });
+    if (mailtoHref.length > MAX_MAILTO_URI_LENGTH) {
+      showMessage(msgEl, 'Mesaj çok uzun; göndermek için metni kısaltın.', false);
+      return;
+    }
+
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Gönderiliyor...';
+    submitBtn.textContent = 'Açılıyor...';
 
-    const result = await FirebaseHelper.addContactMessage({ name, email, subject, message });
+    const link = document.createElement('a');
+    link.href = mailtoHref;
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-    if (result.success) {
-      form.reset();
-      showMessage(msgEl, 'Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız!', true);
-    } else {
-      showMessage(msgEl, 'Mesaj gönderilemedi. Lütfen daha sonra tekrar deneyin.', false);
-    }
+    form.reset();
+    showMessage(msgEl, 'Varsayılan e-posta uygulamanız açıldı. Mesajınızı oradan gönderin.', true);
 
     submitBtn.disabled = false;
     submitBtn.textContent = 'Gönder';
   });
+}
+
+function buildMailtoHref({ name, email, subjectKey, message }) {
+  const recipient = CONFIG.social && CONFIG.social.email ? CONFIG.social.email : 'info@mineverse.com.tr';
+  const subjectLabel = CONTACT_SUBJECT_LABELS[subjectKey] || CONTACT_SUBJECT_LABELS.general;
+  const siteName = CONFIG.site && CONFIG.site.name ? CONFIG.site.name : 'MineVerse';
+  const subjectText = `${siteName} – İletişim: ${subjectLabel}`;
+  const bodyText = `Ad Soyad: ${name}\r\nGönderen e-posta: ${email}\r\n\r\nMesaj:\r\n${message}`;
+  return `mailto:${recipient}?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
 }
 
 function showMessage(el, text, success) {
@@ -56,5 +83,5 @@ function showMessage(el, text, success) {
   el.textContent = text;
   el.className = `form-message ${success ? 'form-message-success' : 'form-message-error'}`;
   el.classList.remove('hidden');
-  setTimeout(() => el.classList.add('hidden'), 6000);
+  setTimeout(() => el.classList.add('hidden'), 8000);
 }

@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileNav();
   initThemeToggle();
   initFooterNewsletter();
-  initSecretGate();
 });
 
 /* ── Theme Toggle ── */
@@ -100,15 +99,5 @@ function initFooterNewsletter() {
       input.placeholder = 'Hata oluştu, tekrar deneyin';
     }
     setTimeout(() => { input.placeholder = 'E-posta adresiniz'; }, 3000);
-  });
-}
-
-/* ── Admin Shortcut (Ctrl/Cmd+Shift+A) ── */
-function initSecretGate() {
-  document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
-      e.preventDefault();
-      window.location.href = 'admin.html';
-    }
   });
 }

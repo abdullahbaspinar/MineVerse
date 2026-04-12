@@ -57,18 +57,27 @@
   height: 100%;
 }
 
-/* Logo – image version */
+/* Logo – theme-specific assets (logo-light / logo-dark) */
 .logo {
   display: flex;
   align-items: center;
 }
-.logo img {
+.logo img.logo-img {
   height: 52px;
   width: auto;
-  filter: var(--logo-filter);
+  display: none;
+  filter: none;
+}
+[data-theme="light"] .logo img.logo-img--light,
+[data-theme="dark"] .logo img.logo-img--dark {
+  display: block;
+}
+/* Ana site üst çubuğu – logo biraz daha büyük */
+.site-header .logo img.logo-img {
+  height: 60px;
 }
 @media (min-width: 768px) {
-  .logo img { height: 58px; }
+  .site-header .logo img.logo-img { height: 68px; }
 }
 
 /* Header right: nav + theme toggle */
@@ -198,7 +207,7 @@
 @media (min-width: 1024px) {
   .footer-grid { grid-template-columns: 2fr 1fr 1fr 1.5fr; }
 }
-.footer-brand .logo img { height: 56px; filter: var(--logo-filter); }
+.footer-brand .logo img.logo-img { height: 56px; }
 .footer-brand p { color: var(--color-text-muted); font-size: var(--text-sm); margin-top: var(--space-3); }
 .footer-heading {
   font-family: var(--font-display);
@@ -258,19 +267,6 @@
   transition: color var(--transition-fast);
 }
 .social-links a:hover { color: var(--color-accent); }
-.footer-admin-link {
-  font-size: var(--text-xs);
-  color: var(--color-text-dim);
-  opacity: 0.5;
-  transition: opacity var(--transition-fast), color var(--transition-fast);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-.footer-admin-link:hover {
-  opacity: 1;
-  color: var(--color-text-muted);
-}
 
 /* ═══════════════ CARDS ═══════════════ */
 .card {

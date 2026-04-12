@@ -37,12 +37,12 @@ const CONFIG = Object.freeze({
     url: 'https://mineverse.com',
   },
 
-  /* Social links (placeholders) */
+  /* Social & contact */
   social: {
-    twitter: 'https://twitter.com/mineverse',
-    linkedin: 'https://linkedin.com/company/mineverse',
-    youtube: 'https://youtube.com/@mineverse',
-    instagram: 'https://instagram.com/mineverse',
+    email: 'info@mineverse.com.tr',
+    linkedin: 'https://www.linkedin.com/company/mine-verse',
+    youtube: 'https://www.youtube.com/@MineVerse-tr',
+    instagram: 'https://www.instagram.com/mineversetr/',
   },
 });
 
