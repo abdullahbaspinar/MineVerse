@@ -24,9 +24,10 @@ async function initPostDetail() {
     document.title = `${post.title} | MineVerse`;
 
     /* Update meta tags */
-    setMeta('description', post.excerpt);
+    const excerptPlain = Render.htmlToPlainText(post.excerpt || '');
+    setMeta('description', excerptPlain);
     setMeta('og:title', post.title);
-    setMeta('og:description', post.excerpt);
+    setMeta('og:description', excerptPlain);
     if (post.coverImageUrl) setMeta('og:image', post.coverImageUrl);
 
     /* Hero */

@@ -1,7 +1,10 @@
 /* admin.css – Admin panel styles */
 
 /* ── Base: Admin pages use full viewport ── */
+/* Ana sitedeki body { display:flex } admin içinde iç içe flex + Quill contenteditable ile
+   odak/klavye sorunlarına yol açabiliyor; admin kendi layout’unu kullanır. */
 body.admin-page {
+  display: block;
   overflow-x: hidden;
   min-height: 100vh;
   min-height: 100dvh;
@@ -225,6 +228,12 @@ body.admin-page {
   margin-bottom: var(--space-6);
 }
 .section-toolbar h2 { margin: 0; font-size: var(--text-2xl); }
+.section-toolbar-hint {
+  margin-top: var(--space-2);
+  margin-bottom: 0;
+  max-width: 560px;
+  line-height: var(--leading-normal);
+}
 
 /* ── Admin Tables ── */
 .admin-table-wrap {
@@ -399,15 +408,31 @@ body.admin-page {
 
 /* ── Quill Editor Overrides ── */
 .quill-wrap {
+  position: relative;
+  z-index: 0;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  overflow: hidden;
+  overflow: visible;
   margin-top: var(--space-2);
+}
+.quill-wrap:focus-within {
+  z-index: 3;
+}
+.quill-wrap .ql-toolbar,
+.quill-wrap .ql-container {
+  border-radius: inherit;
+}
+.quill-wrap .ql-toolbar {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+.quill-wrap .ql-container {
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
 }
 .quill-wrap .ql-toolbar {
   background: var(--color-bg-elevated);
   border: none;
   border-bottom: 1px solid var(--color-border);
+  pointer-events: auto;
 }
 .quill-wrap .ql-toolbar .ql-stroke { stroke: var(--color-text-muted); }
 .quill-wrap .ql-toolbar .ql-fill { fill: var(--color-text-muted); }
@@ -423,8 +448,33 @@ body.admin-page {
   font-size: var(--text-base);
   color: var(--color-text);
   min-height: 300px;
+  pointer-events: auto;
 }
-.quill-wrap .ql-editor { min-height: 300px; line-height: var(--leading-normal); }
+.quill-wrap .ql-editor {
+  min-height: 300px;
+  line-height: var(--leading-normal);
+  pointer-events: auto;
+  touch-action: auto;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.quill-wrap--compact .ql-container { min-height: 140px; }
+.quill-wrap--compact .ql-editor { min-height: 140px; }
+/* Tam genişlik içerik alanı (makale + video açıklaması) — compact değil */
+.quill-wrap--body .ql-container { min-height: 280px; }
+.quill-wrap--body .ql-editor { min-height: 280px; }
+
+.admin-quill-fallback-banner {
+  color: var(--color-warning, #d97706);
+  margin-bottom: var(--space-2);
+}
+textarea.admin-quill-fallback {
+  width: 100%;
+  min-height: 200px;
+  resize: vertical;
+  font-family: var(--font-body);
+  line-height: var(--leading-normal);
+}
 .quill-wrap .ql-editor.ql-blank::before { color: var(--color-text-dim); font-style: normal; }
 .quill-wrap .ql-editor a { color: var(--color-accent); }
 .quill-wrap .ql-snow .ql-picker-options { background: var(--color-bg-card); border-color: var(--color-border); }
@@ -607,6 +657,10 @@ body.admin-page {
   /* Quill editor shorter */
   .quill-wrap .ql-container { min-height: 180px; }
   .quill-wrap .ql-editor { min-height: 180px; }
+  .quill-wrap--body .ql-container { min-height: 200px; }
+  .quill-wrap--body .ql-editor { min-height: 200px; }
+  .quill-wrap--compact .ql-container { min-height: 120px; }
+  .quill-wrap--compact .ql-editor { min-height: 120px; }
   .quill-wrap .ql-toolbar { flex-wrap: wrap; padding: var(--space-2); }
 
   /* Toast full width, above safe area */

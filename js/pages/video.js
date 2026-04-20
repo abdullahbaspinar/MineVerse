@@ -24,9 +24,10 @@ async function initVideoDetail() {
 
     document.title = `${video.title} | MineVerse`;
 
-    setMeta('description', video.description || video.title);
+    const descPlain = Render.htmlToPlainText(video.description || '');
+    setMeta('description', descPlain || video.title);
     setMeta('og:title', video.title);
-    setMeta('og:description', video.description || video.title);
+    setMeta('og:description', descPlain || video.title);
     if (video.coverImageUrl) setMeta('og:image', video.coverImageUrl);
 
     if (playerEl) {
@@ -40,7 +41,7 @@ async function initVideoDetail() {
         <div class="card-meta">
           <time datetime="${Render.escapeHtml(video.publishedAt)}">${Render.formatDate(video.publishedAt)}</time>
         </div>
-        ${video.description ? `<div class="video-detail-description">${Render.escapeHtml(video.description)}</div>` : ''}
+        ${video.description ? renderVideoDescription(video.description) : ''}
       `;
     }
 
@@ -55,4 +56,12 @@ function setMeta(name, content) {
   if (!content) return;
   let el = document.querySelector(`meta[property="${name}"]`) || document.querySelector(`meta[name="${name}"]`);
   if (el) el.setAttribute('content', content);
+}
+
+/** Eski kayıtlar: düz metin + satır sonu; yeniler: Quill HTML */
+function renderVideoDescription(raw) {
+  if (!raw.includes('<')) {
+    return `<div class="video-detail-description video-detail-description--plain">${Render.escapeHtml(raw)}</div>`;
+  }
+  return `<div class="video-detail-description">${Render.sanitizeHtml(raw)}</div>`;
 }

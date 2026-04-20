@@ -7,7 +7,79 @@ const Admin = (() => {
   let editingPostId = null;
   let editingVideoId = null;
   let quillEditor = null;
+  let quillExcerpt = null;
+  let quillVideoDescription = null;
   let auth = null;
+
+  const QUILL_TOOLBAR_COMPACT = [
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['blockquote', 'link'],
+    ['clean'],
+  ];
+
+  const QUILL_TOOLBAR_FULL = [
+    [{ header: [2, 3, 4, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    ['link', 'blockquote'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['image'],
+    ['clean'],
+  ];
+
+  function attachQuillImageHandler(editor) {
+    if (!editor || !editor.getModule) return;
+    editor.getModule('toolbar').addHandler('image', () => {
+      const url = prompt('Görsel URL\'si girin:');
+      if (url) {
+        const range = editor.getSelection(true);
+        editor.insertEmbed(range.index, 'image', url);
+      }
+    });
+  }
+
+  function mountExcerptFallback(container, content) {
+    container.innerHTML =
+      '<p class="form-hint admin-quill-fallback-banner">Özet editörü yüklenemedi; metni aşağıya yazın.</p>' +
+      '<textarea id="post-excerpt-fallback" class="form-textarea admin-quill-fallback" rows="8"></textarea>';
+    const ta = document.getElementById('post-excerpt-fallback');
+    if (ta && content) ta.value = content;
+  }
+
+  function mountBodyFallback(container, content) {
+    container.innerHTML =
+      '<p class="form-hint admin-quill-fallback-banner">İçerik editörü yüklenemedi; makale metnini aşağıya yazın (gerekirse HTML).</p>' +
+      '<textarea id="post-body-fallback" class="form-textarea admin-quill-fallback" rows="20"></textarea>';
+    const ta = document.getElementById('post-body-fallback');
+    if (ta && content) ta.value = content;
+  }
+
+  function mountVideoDescriptionFallback(container, content) {
+    container.innerHTML =
+      '<p class="form-hint admin-quill-fallback-banner">Video açıklama editörü yüklenemedi; metni aşağıya yazın (gerekirse HTML).</p>' +
+      '<textarea id="video-description-fallback" class="form-textarea admin-quill-fallback" rows="16"></textarea>';
+    const ta = document.getElementById('video-description-fallback');
+    if (ta && content) ta.value = content;
+  }
+
+  function isQuillContentEmpty(html) {
+    if (!html || !String(html).trim()) return true;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    const text = (tmp.textContent || '').replace(/\u00a0/g, ' ').trim();
+    if (text.length > 0) return false;
+    return !tmp.querySelector('img');
+  }
+
+  /**
+   * Quill, overflow ile kaydırılan bir üst öğe içindeyken (admin .admin-content)
+   * scrollingContainer/bounds verilmezse başlık açılır menüsü ve düzenleme alanı bozulabiliyor.
+   */
+  function quillScrollOptions() {
+    const el = document.querySelector('.admin-content');
+    if (!el) return {};
+    return { bounds: el, scrollingContainer: el };
+  }
 
   /* ═══════════════ INIT ═══════════════ */
   function init() {
@@ -381,7 +453,6 @@ const Admin = (() => {
     if (postData) {
       form.title.value = postData.title || '';
       form.slug.value = postData.slug || '';
-      form.excerpt.value = postData.excerpt || '';
       form.category.value = postData.category || 'news';
       form.tags.value = (postData.tags || []).join(', ');
       form.coverImageUrl.value = postData.coverImageUrl || '';
@@ -393,7 +464,13 @@ const Admin = (() => {
       updateImagePreview('post-cover-preview', '');
     }
 
-    initQuill(postData?.body || '');
+    try {
+      initQuillExcerpt(postData?.excerpt || '');
+      initQuill(postData?.body || '');
+    } catch (err) {
+      console.error('[Admin] Quill (içerik):', err);
+      toast('Metin editörü yüklenemedi. Sayfayı yenileyip tekrar deneyin.', 'error');
+    }
 
     form.title.addEventListener('input', function autoSlug() {
       if (!editingPostId) form.slug.value = slugify(form.title.value);
@@ -405,19 +482,29 @@ const Admin = (() => {
     document.getElementById('posts-form-view').classList.add('hidden');
     editingPostId = null;
     quillEditor = null;
+    quillExcerpt = null;
   }
 
   async function savePost() {
     const form = document.getElementById('post-form');
     const title = form.title.value.trim();
     const slug = form.slug.value.trim() || slugify(title);
-    const excerpt = form.excerpt.value.trim();
+    let excerptHtml = quillExcerpt ? quillExcerpt.root.innerHTML : '';
+    if (!quillExcerpt) {
+      const exFb = document.getElementById('post-excerpt-fallback');
+      if (exFb) excerptHtml = exFb.value.trim();
+    }
+    const excerpt = isQuillContentEmpty(excerptHtml) ? '' : excerptHtml.trim();
     const category = form.category.value;
     const tags = form.tags.value.split(',').map(t => t.trim()).filter(Boolean);
     const coverImageUrl = form.coverImageUrl.value.trim();
     const publishedAt = form.publishedAt.value ? new Date(form.publishedAt.value) : new Date();
     const featured = form.featured.checked;
-    const body = quillEditor ? quillEditor.root.innerHTML : '';
+    let body = quillEditor ? quillEditor.root.innerHTML : '';
+    if (!quillEditor) {
+      const bFb = document.getElementById('post-body-fallback');
+      if (bFb) body = bFb.value.trim();
+    }
 
     if (!title) { toast('Başlık zorunludur.', 'error'); return; }
     if (!slug) { toast('Slug zorunludur.', 'error'); return; }
@@ -442,6 +529,7 @@ const Admin = (() => {
         await db.collection('posts').add(data);
         toast('Yeni içerik eklendi!', 'success');
       }
+      if (typeof API !== 'undefined' && API.clearCache) API.clearCache();
       hidePostForm();
       loadPosts();
     } catch (err) {
@@ -465,6 +553,7 @@ const Admin = (() => {
     if (!ok) return;
     try {
       await db.collection('posts').doc(id).delete();
+      if (typeof API !== 'undefined' && API.clearCache) API.clearCache();
       toast('İçerik silindi.', 'success');
       loadPosts();
     } catch (err) { toast('Silme hatası: ' + err.message, 'error'); }
@@ -544,7 +633,6 @@ const Admin = (() => {
       form.coverImageUrl.value = videoData.coverImageUrl || '';
       embedInput.value = videoData.youtubeEmbed || '';
       urlInput.value = embedToWatchUrl(videoData.youtubeEmbed);
-      form.description.value = videoData.description || '';
       form.publishedAt.value = fmtDateInput(videoData.publishedAt);
       form.featured.checked = !!videoData.featured;
       updateImagePreview('video-cover-preview', videoData.coverImageUrl);
@@ -561,12 +649,20 @@ const Admin = (() => {
     form.title.addEventListener('input', function autoSlug() {
       if (!editingVideoId) form.slug.value = slugify(form.title.value);
     });
+
+    try {
+      initQuillVideoDescription(videoData?.description || '');
+    } catch (err) {
+      console.error('[Admin] Quill (video):', err);
+      toast('Açıklama editörü yüklenemedi. Sayfayı yenileyip tekrar deneyin.', 'error');
+    }
   }
 
   function hideVideoForm() {
     document.getElementById('videos-list-view').classList.remove('hidden');
     document.getElementById('videos-form-view').classList.add('hidden');
     editingVideoId = null;
+    quillVideoDescription = null;
   }
 
   async function saveVideo() {
@@ -577,7 +673,12 @@ const Admin = (() => {
     let youtubeEmbed = form.youtubeEmbed.value.trim();
     const urlInput = document.getElementById('video-youtubeUrl').value.trim();
     if (!youtubeEmbed && urlInput) youtubeEmbed = urlToEmbed(urlInput);
-    const description = form.description.value.trim();
+    let descriptionHtml = quillVideoDescription ? quillVideoDescription.root.innerHTML : '';
+    if (!quillVideoDescription) {
+      const dFb = document.getElementById('video-description-fallback');
+      if (dFb) descriptionHtml = dFb.value.trim();
+    }
+    const description = isQuillContentEmpty(descriptionHtml) ? '' : descriptionHtml.trim();
     const publishedAt = form.publishedAt.value ? new Date(form.publishedAt.value) : new Date();
     const featured = form.featured.checked;
 
@@ -636,30 +737,75 @@ const Admin = (() => {
   /* ═══════════════ QUILL EDITOR ═══════════════ */
   function initQuill(content) {
     const container = document.getElementById('quill-editor');
+    if (!container) {
+      console.error('[Admin] #quill-editor bulunamadı; gövde metni kaydedilemez.');
+      quillEditor = null;
+      return;
+    }
     container.innerHTML = '';
+    if (typeof Quill === 'undefined') {
+      console.error('[Admin] Quill yüklenmedi; vendor/quill-1.3.7/quill.min.js yolunu kontrol edin.');
+      mountBodyFallback(container, content);
+      quillEditor = null;
+      return;
+    }
     quillEditor = new Quill(container, {
       theme: 'snow',
-      placeholder: 'İçeriğinizi buraya yazın...',
-      modules: {
-        toolbar: [
-          [{ header: [2, 3, 4, false] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          ['link', 'blockquote'],
-          [{ list: 'ordered' }, { list: 'bullet' }],
-          ['image'],
-          ['clean'],
-        ],
-      },
+      readOnly: false,
+      placeholder: 'Makale veya haber metnini buraya yazın…',
+      ...quillScrollOptions(),
+      modules: { toolbar: QUILL_TOOLBAR_FULL },
     });
+    quillEditor.enable(true);
     if (content) quillEditor.root.innerHTML = content;
+    attachQuillImageHandler(quillEditor);
+  }
 
-    quillEditor.getModule('toolbar').addHandler('image', () => {
-      const url = prompt('Görsel URL\'si girin:');
-      if (url) {
-        const range = quillEditor.getSelection(true);
-        quillEditor.insertEmbed(range.index, 'image', url);
-      }
+  function initQuillExcerpt(content) {
+    const container = document.getElementById('quill-excerpt');
+    if (!container) {
+      quillExcerpt = null;
+      return;
+    }
+    container.innerHTML = '';
+    if (typeof Quill === 'undefined') {
+      mountExcerptFallback(container, content);
+      quillExcerpt = null;
+      return;
+    }
+    quillExcerpt = new Quill(container, {
+      theme: 'snow',
+      readOnly: false,
+      placeholder: 'Liste ve kartlarda görünecek özet...',
+      ...quillScrollOptions(),
+      modules: { toolbar: QUILL_TOOLBAR_COMPACT },
     });
+    quillExcerpt.enable(true);
+    if (content) quillExcerpt.root.innerHTML = content;
+  }
+
+  function initQuillVideoDescription(content) {
+    const container = document.getElementById('quill-video-description');
+    if (!container) {
+      quillVideoDescription = null;
+      return;
+    }
+    container.innerHTML = '';
+    if (typeof Quill === 'undefined') {
+      mountVideoDescriptionFallback(container, content);
+      quillVideoDescription = null;
+      return;
+    }
+    quillVideoDescription = new Quill(container, {
+      theme: 'snow',
+      readOnly: false,
+      placeholder: 'Video sayfasında gösterilecek açıklama ve metin…',
+      ...quillScrollOptions(),
+      modules: { toolbar: QUILL_TOOLBAR_FULL },
+    });
+    quillVideoDescription.enable(true);
+    if (content) quillVideoDescription.root.innerHTML = content;
+    attachQuillImageHandler(quillVideoDescription);
   }
 
   /* ═══════════════ PUBLIC API ═══════════════ */

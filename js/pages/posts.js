@@ -53,7 +53,7 @@ function filterAndRender() {
     const q = postsState.query.toLowerCase();
     results = results.filter(p =>
       p.title.toLowerCase().includes(q) ||
-      p.excerpt.toLowerCase().includes(q) ||
+      Render.htmlToPlainText(p.excerpt || '').toLowerCase().includes(q) ||
       (p.tags && p.tags.some(t => t.toLowerCase().includes(q)))
     );
   }

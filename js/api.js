@@ -20,6 +20,17 @@ const API = (() => {
     catch { /* quota exceeded */ }
   }
 
+  function excerptPlainForSearch(excerpt) {
+    if (!excerpt || typeof excerpt !== 'string') return '';
+    if (!/[<>]/.test(excerpt)) return excerpt;
+    try {
+      const doc = new DOMParser().parseFromString(excerpt, 'text/html');
+      return (doc.body.textContent || '').replace(/\s+/g, ' ').trim();
+    } catch {
+      return excerpt;
+    }
+  }
+
   /* ── Firestore doc → plain object ── */
   function normalizeDoc(doc) {
     const d = doc.data();
@@ -137,7 +148,7 @@ const API = (() => {
     const q = query.toLowerCase();
     return all.filter(p =>
       p.title.toLowerCase().includes(q) ||
-      (p.excerpt && p.excerpt.toLowerCase().includes(q)) ||
+      excerptPlainForSearch(p.excerpt).toLowerCase().includes(q) ||
       (p.tags && p.tags.some(t => t.toLowerCase().includes(q)))
     );
   }

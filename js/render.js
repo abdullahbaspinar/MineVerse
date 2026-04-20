@@ -87,6 +87,14 @@ const Render = (() => {
     return str.replace(/[&<>"']/g, c => map[c]);
   }
 
+  /** Plain text from HTML (özet arama, kart önizlemesi, meta açıklaması) */
+  function htmlToPlainText(html) {
+    if (!html || typeof html !== 'string') return '';
+    if (!/[<>]/.test(html)) return html.trim();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return (doc.body.textContent || '').replace(/\s+/g, ' ').trim();
+  }
+
   /** Validate a URL string is safe (http/https only) */
   function safeUrl(url) {
     if (!url || typeof url !== 'string') return '';
@@ -125,6 +133,12 @@ const Render = (() => {
     }
     const ex = typeof excerpt === 'string' ? excerpt.trim() : '';
     if (ex) {
+      if (ex.includes('<')) {
+        const sanitizedEx = sanitizeHtml(ex);
+        if (!isHtmlContentEmpty(sanitizedEx)) {
+          return `<div class="post-body post-body--from-excerpt">${sanitizedEx}</div>`;
+        }
+      }
       return `<div class="post-body post-body--from-excerpt"><p>${escapeHtml(ex)}</p></div>`;
     }
     return '<p class="text-muted">İçerik bulunamadı.</p>';
@@ -181,7 +195,7 @@ const Render = (() => {
       </div>
       <div class="card-body">
         <h3><a href="post.html?slug=${encodeURIComponent(slug)}">${escapeHtml(post.title)}</a></h3>
-        <p class="card-excerpt">${escapeHtml(post.excerpt)}</p>
+        <p class="card-excerpt">${escapeHtml(htmlToPlainText(post.excerpt))}</p>
         <div class="card-meta">
           <time datetime="${escapeHtml(post.publishedAt)}">${formatDate(post.publishedAt)}</time>
         </div>
@@ -300,6 +314,7 @@ const Render = (() => {
     sanitizeEmbed,
     sanitizeHtml,
     escapeHtml,
+    htmlToPlainText,
     safeUrl,
     renderBody,
     renderPortableText,

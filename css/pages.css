@@ -159,6 +159,10 @@
   color: var(--color-text-muted);
   font-style: italic;
 }
+.post-article strong, .post-article b { font-weight: 600; color: var(--color-text); }
+.post-article em, .post-article i { font-style: italic; }
+.post-article .post-body > *:first-child { margin-top: 0; }
+.post-article .post-body p { margin-bottom: var(--space-4); }
 .post-tags {
   display: flex;
   flex-wrap: wrap;
@@ -238,8 +242,27 @@
   margin-top: var(--space-6);
   padding-top: var(--space-6);
   border-top: 1px solid var(--color-border);
-  white-space: pre-line;
 }
+.video-detail-description p { margin-bottom: var(--space-4); }
+.video-detail-description p:last-child { margin-bottom: 0; }
+.video-detail-description ul, .video-detail-description ol {
+  margin-left: var(--space-6);
+  margin-bottom: var(--space-4);
+}
+.video-detail-description ul { list-style: disc; }
+.video-detail-description ol { list-style: decimal; }
+.video-detail-description li { margin-bottom: var(--space-2); }
+.video-detail-description a { color: var(--color-accent); text-decoration: underline; }
+.video-detail-description a:hover { color: var(--color-accent-hover); }
+.video-detail-description blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: var(--space-5);
+  margin-block: var(--space-4);
+  font-style: italic;
+}
+.video-detail-description strong, .video-detail-description b { font-weight: 600; color: var(--color-text); }
+.video-detail-description em, .video-detail-description i { font-style: italic; }
+.video-detail-description--plain { white-space: pre-line; }
 
 /* ═══════════════ ABOUT ═══════════════ */
 .about-content {
@@ -247,6 +270,32 @@
   margin-inline: auto;
 }
 .about-content p { color: var(--color-text-muted); font-size: var(--text-lg); line-height: 1.8; }
+.about-mission-vision {
+  display: grid;
+  gap: var(--space-8);
+  margin-top: var(--space-10);
+}
+.about-statement {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-8);
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--color-accent);
+}
+.about-statement h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin: 0 0 var(--space-4);
+  color: var(--color-text);
+}
+.about-statement p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+  line-height: 1.8;
+}
 .about-features {
   display: grid;
   gap: var(--space-6);
