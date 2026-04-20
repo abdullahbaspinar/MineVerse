@@ -81,8 +81,46 @@ const Admin = (() => {
     return { bounds: el, scrollingContainer: el };
   }
 
+  /** Firestore: var db + yedek window.MineVerseDb (firebase-config) */
+  function getDb() {
+    try {
+      if (typeof db !== 'undefined' && db !== null) return db;
+    } catch (e) { /* db tanımsız */ }
+    if (typeof window !== 'undefined' && window.MineVerseDb) return window.MineVerseDb;
+    if (typeof window !== 'undefined' && typeof window.db !== 'undefined' && window.db) return window.db;
+    return null;
+  }
+
   function isDbReady() {
-    return typeof db !== 'undefined' && db !== null;
+    return getDb() !== null;
+  }
+
+  /** createdAt karşılaştırması (orderBy / index olmadan istemci sıralaması) */
+  function docCreatedSec(docSnap) {
+    const d = docSnap.data();
+    const c = d && d.createdAt;
+    if (!c) return 0;
+    if (typeof c.seconds === 'number') return c.seconds;
+    if (typeof c._seconds === 'number') return c._seconds;
+    if (c && typeof c.toMillis === 'function') return Math.floor(c.toMillis() / 1000);
+    if (c && typeof c.toDate === 'function') return Math.floor(c.toDate().getTime() / 1000);
+    return 0;
+  }
+
+  function sortDocSnapshotsByCreatedDesc(docs) {
+    return docs.slice().sort((a, b) => docCreatedSec(b) - docCreatedSec(a));
+  }
+
+  function firestoreErrToUser(err) {
+    const code = err && err.code;
+    const msg = (err && err.message) || String(err);
+    if (code === 'permission-denied') {
+      return 'Firestore izni yok. Firebase Console → Firestore Rules içinde giriş yapmış kullanıcıya okuma/yazma izni verin.';
+    }
+    if (code === 'unavailable' || (msg && msg.indexOf('network') !== -1)) {
+      return 'Ağ hatası veya Firestore geçici olarak kullanılamıyor. İnternet bağlantısını deneyin.';
+    }
+    return msg;
   }
 
   /* ═══════════════ INIT ═══════════════ */
@@ -422,31 +460,40 @@ const Admin = (() => {
       }
       return;
     }
-    const [posts, videos] = await Promise.all([
-      db.collection('posts').get(),
-      db.collection('videos').get(),
-    ]);
-
-    document.getElementById('stat-posts').textContent = posts.size;
-    document.getElementById('stat-videos').textContent = videos.size;
-
     const recentEl = document.getElementById('dashboard-recent');
-    const recentPosts = posts.docs
-      .map(d => ({ id: d.id, ...d.data() }))
-      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
-      .slice(0, 5);
+    try {
+      const database = getDb();
+      const [posts, videos] = await Promise.all([
+        database.collection('posts').get(),
+        database.collection('videos').get(),
+      ]);
 
-    if (recentPosts.length === 0) {
-      recentEl.innerHTML = '<p class="text-muted text-sm">Henüz içerik eklenmemiş. "İçerikler" bölümünden ilk içeriğinizi ekleyin.</p>';
-    } else {
-      recentEl.innerHTML = `<div class="admin-table-wrap"><table class="admin-table">
-        <thead><tr><th>Başlık</th><th>Kategori</th><th class="mobile-hide">Tarih</th><th class="mobile-hide">Son Güncelleyen</th></tr></thead>
-        <tbody>${recentPosts.map(p => `<tr>
-          <td class="row-title">${esc(p.title)}</td>
-          <td><span class="badge">${esc(p.category || '')}</span></td>
-          <td class="mobile-hide">${fmtDate(p.publishedAt)}</td>
-          <td class="mobile-hide row-updated-by">${p.lastUpdatedBy ? esc(p.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
-        </tr>`).join('')}</tbody></table></div>`;
+      document.getElementById('stat-posts').textContent = posts.size;
+      document.getElementById('stat-videos').textContent = videos.size;
+
+      const recentPosts = sortDocSnapshotsByCreatedDesc(posts.docs)
+        .slice(0, 5)
+        .map(d => ({ id: d.id, ...d.data() }));
+
+      if (recentPosts.length === 0) {
+        recentEl.innerHTML = '<p class="text-muted text-sm">Henüz içerik eklenmemiş. "İçerikler" bölümünden ilk içeriğinizi ekleyin.</p>';
+      } else {
+        recentEl.innerHTML = `<div class="admin-table-wrap"><table class="admin-table">
+          <thead><tr><th>Başlık</th><th>Kategori</th><th class="mobile-hide">Tarih</th><th class="mobile-hide">Son Güncelleyen</th></tr></thead>
+          <tbody>${recentPosts.map(p => `<tr>
+            <td class="row-title">${esc(p.title)}</td>
+            <td><span class="badge">${esc(p.category || '')}</span></td>
+            <td class="mobile-hide">${fmtDate(p.publishedAt)}</td>
+            <td class="mobile-hide row-updated-by">${p.lastUpdatedBy ? esc(p.lastUpdatedBy) : '<span class="text-muted">—</span>'}</td>
+          </tr>`).join('')}</tbody></table></div>`;
+      }
+    } catch (err) {
+      console.error('[Admin] loadDashboard', err);
+      document.getElementById('stat-posts').textContent = '—';
+      document.getElementById('stat-videos').textContent = '—';
+      if (recentEl) {
+        recentEl.innerHTML = `<p class="text-muted text-sm" style="color:var(--color-error)">${esc(firestoreErrToUser(err))}</p>`;
+      }
     }
   }
 
@@ -459,12 +506,13 @@ const Admin = (() => {
       return;
     }
     try {
-      const snap = await db.collection('posts').orderBy('createdAt', 'desc').get();
-      if (snap.empty) {
+      const snap = await getDb().collection('posts').get();
+      const docs = sortDocSnapshotsByCreatedDesc(snap.docs);
+      if (docs.length === 0) {
         container.innerHTML = '<tr><td colspan="7" class="table-empty">Henüz içerik yok. "Yeni İçerik" butonuna tıklayarak ekleyin.</td></tr>';
         return;
       }
-      container.innerHTML = snap.docs.map(doc => {
+      container.innerHTML = docs.map(doc => {
         const p = doc.data();
         return `<tr>
           <td class="mobile-hide">${p.coverImageUrl ? `<img src="${esc(p.coverImageUrl)}" class="row-thumb" alt="" />` : '<span class="row-thumb skeleton"></span>'}</td>
@@ -480,7 +528,8 @@ const Admin = (() => {
         </tr>`;
       }).join('');
     } catch (err) {
-      container.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:var(--color-error)">Hata: ${esc(err.message)}</td></tr>`;
+      console.error('[Admin] loadPosts', err);
+      container.innerHTML = `<tr><td colspan="7" class="table-empty" style="color:var(--color-error)">${esc(firestoreErrToUser(err))}</td></tr>`;
     }
   }
 
@@ -572,11 +621,11 @@ const Admin = (() => {
 
     try {
       if (editingPostId) {
-        await db.collection('posts').doc(editingPostId).update(data);
+        await getDb().collection('posts').doc(editingPostId).update(data);
         toast('İçerik güncellendi!', 'success');
       } else {
         data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        await db.collection('posts').add(data);
+        await getDb().collection('posts').add(data);
         toast('Yeni içerik eklendi!', 'success');
       }
       if (typeof API !== 'undefined' && API.clearCache) API.clearCache();
@@ -593,7 +642,7 @@ const Admin = (() => {
     editingPostId = id;
     if (!isDbReady()) { toast('Veritabanı kullanılamıyor.', 'error'); return; }
     try {
-      const doc = await db.collection('posts').doc(id).get();
+      const doc = await getDb().collection('posts').doc(id).get();
       if (!doc.exists) { toast('İçerik bulunamadı.', 'error'); return; }
       showPostForm(doc.data());
     } catch (err) { toast('Hata: ' + err.message, 'error'); }
@@ -604,7 +653,7 @@ const Admin = (() => {
     if (!ok) return;
     if (!isDbReady()) { toast('Veritabanı kullanılamıyor.', 'error'); return; }
     try {
-      await db.collection('posts').doc(id).delete();
+      await getDb().collection('posts').doc(id).delete();
       if (typeof API !== 'undefined' && API.clearCache) API.clearCache();
       toast('İçerik silindi.', 'success');
       loadPosts();
@@ -620,12 +669,13 @@ const Admin = (() => {
       return;
     }
     try {
-      const snap = await db.collection('videos').orderBy('createdAt', 'desc').get();
-      if (snap.empty) {
+      const snap = await getDb().collection('videos').get();
+      const docs = sortDocSnapshotsByCreatedDesc(snap.docs);
+      if (docs.length === 0) {
         container.innerHTML = '<tr><td colspan="6" class="table-empty">Henüz video yok. "Yeni Video" butonuna tıklayarak ekleyin.</td></tr>';
         return;
       }
-      container.innerHTML = snap.docs.map(doc => {
+      container.innerHTML = docs.map(doc => {
         const v = doc.data();
         return `<tr>
           <td class="mobile-hide">${v.coverImageUrl ? `<img src="${esc(v.coverImageUrl)}" class="row-thumb" alt="" />` : '—'}</td>
@@ -640,7 +690,8 @@ const Admin = (() => {
         </tr>`;
       }).join('');
     } catch (err) {
-      container.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:var(--color-error)">Hata: ${esc(err.message)}</td></tr>`;
+      console.error('[Admin] loadVideos', err);
+      container.innerHTML = `<tr><td colspan="6" class="table-empty" style="color:var(--color-error)">${esc(firestoreErrToUser(err))}</td></tr>`;
     }
   }
 
@@ -761,11 +812,11 @@ const Admin = (() => {
 
     try {
       if (editingVideoId) {
-        await db.collection('videos').doc(editingVideoId).update(data);
+        await getDb().collection('videos').doc(editingVideoId).update(data);
         toast('Video güncellendi!', 'success');
       } else {
         data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        await db.collection('videos').add(data);
+        await getDb().collection('videos').add(data);
         toast('Yeni video eklendi!', 'success');
       }
       hideVideoForm();
@@ -779,7 +830,7 @@ const Admin = (() => {
     editingVideoId = id;
     if (!isDbReady()) { toast('Veritabanı kullanılamıyor.', 'error'); return; }
     try {
-      const doc = await db.collection('videos').doc(id).get();
+      const doc = await getDb().collection('videos').doc(id).get();
       if (!doc.exists) { toast('Video bulunamadı.', 'error'); return; }
       showVideoForm(doc.data());
     } catch (err) { toast('Hata: ' + err.message, 'error'); }
@@ -790,7 +841,7 @@ const Admin = (() => {
     if (!ok) return;
     if (!isDbReady()) { toast('Veritabanı kullanılamıyor.', 'error'); return; }
     try {
-      await db.collection('videos').doc(id).delete();
+      await getDb().collection('videos').doc(id).delete();
       toast('Video silindi.', 'success');
       loadVideos();
     } catch (err) { toast('Silme hatası: ' + err.message, 'error'); }

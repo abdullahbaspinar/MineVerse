@@ -9,8 +9,9 @@ const firebaseConfig = {
   appId: "1:704146672803:web:9bbedcf564873811178316"
 };
 
-let db = null;
-let fbStorage = null;
+/* var: tüm klasik script’lerden window.db ile erişim (let bazı ortamlarda admin.js’den görünmez). */
+var db = null;
+var fbStorage = null;
 
 function showFirebaseInitBanner(message) {
   const text = message || 'Sistem bağlantısı kurulamadı. Lütfen daha sonra tekrar deneyin.';
@@ -32,6 +33,16 @@ try {
   } else {
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
+    try {
+      if (db && typeof db.settings === 'function') {
+        db.settings({ experimentalForceLongPolling: true, merge: true });
+      }
+    } catch (settingsErr) {
+      console.warn('[Firebase] Firestore settings:', settingsErr);
+    }
+    try {
+      window.MineVerseDb = db;
+    } catch (e) { /* ignore */ }
     if (typeof firebase.storage === 'function') {
       try {
         fbStorage = firebase.storage();
@@ -43,6 +54,7 @@ try {
 } catch (err) {
   console.error('[Firebase] Initialization failed:', err);
   db = null;
+  try { window.MineVerseDb = null; } catch (e) { /* ignore */ }
   showFirebaseInitBanner();
 }
 
