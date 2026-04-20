@@ -81,6 +81,31 @@ const Admin = (() => {
     return { bounds: el, scrollingContainer: el };
   }
 
+  /**
+   * Quill Snow, araç çubuğunu editör div'inin *üst kardeşi* olarak ekler.
+   * Sadece div.innerHTML = '' yapmak eski .ql-toolbar'ları silmez; her açılışta yenisini ekler.
+   */
+  function resetQuillMount(editorId) {
+    const el = document.getElementById(editorId);
+    if (!el) return null;
+    const wrap = el.closest('.quill-wrap');
+    if (wrap) {
+      wrap.innerHTML = '';
+      const fresh = document.createElement('div');
+      fresh.id = editorId;
+      wrap.appendChild(fresh);
+      return fresh;
+    }
+    const p = el.parentNode;
+    if (p) {
+      Array.from(p.children).forEach((child) => {
+        if (child !== el && child.classList && child.classList.contains('ql-toolbar')) child.remove();
+      });
+    }
+    el.innerHTML = '';
+    return el;
+  }
+
   /** Firestore: var db + yedek window.MineVerseDb (firebase-config) */
   function getDb() {
     try {
@@ -854,13 +879,12 @@ const Admin = (() => {
 
   /* ═══════════════ QUILL EDITOR ═══════════════ */
   function initQuill(content) {
-    const container = document.getElementById('quill-editor');
+    const container = resetQuillMount('quill-editor');
     if (!container) {
       console.error('[Admin] #quill-editor bulunamadı; gövde metni kaydedilemez.');
       quillEditor = null;
       return;
     }
-    container.innerHTML = '';
     if (typeof Quill === 'undefined') {
       console.error('[Admin] Quill yüklenmedi; vendor/quill-1.3.7/quill.min.js yolunu kontrol edin.');
       mountBodyFallback(container, content);
@@ -880,12 +904,11 @@ const Admin = (() => {
   }
 
   function initQuillExcerpt(content) {
-    const container = document.getElementById('quill-excerpt');
+    const container = resetQuillMount('quill-excerpt');
     if (!container) {
       quillExcerpt = null;
       return;
     }
-    container.innerHTML = '';
     if (typeof Quill === 'undefined') {
       mountExcerptFallback(container, content);
       quillExcerpt = null;
@@ -903,12 +926,11 @@ const Admin = (() => {
   }
 
   function initQuillVideoDescription(content) {
-    const container = document.getElementById('quill-video-description');
+    const container = resetQuillMount('quill-video-description');
     if (!container) {
       quillVideoDescription = null;
       return;
     }
-    container.innerHTML = '';
     if (typeof Quill === 'undefined') {
       mountVideoDescriptionFallback(container, content);
       quillVideoDescription = null;
