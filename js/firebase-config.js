@@ -9,28 +9,41 @@ const firebaseConfig = {
   appId: "1:704146672803:web:9bbedcf564873811178316"
 };
 
-let db;
+let db = null;
 let fbStorage = null;
 
+function showFirebaseInitBanner(message) {
+  const text = message || 'Sistem bağlantısı kurulamadı. Lütfen daha sonra tekrar deneyin.';
+  const run = () => {
+    const banner = document.createElement('div');
+    banner.style.cssText =
+      'position:fixed;top:0;left:0;right:0;z-index:9999;background:#b00020;color:#fff;padding:16px;text-align:center;font-size:14px;';
+    banner.textContent = text;
+    document.body.appendChild(banner);
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+}
+
 try {
-  firebase.initializeApp(firebaseConfig);
-  db = firebase.firestore();
-  if (typeof firebase.storage === 'function') {
-    try {
-      fbStorage = firebase.storage();
-    } catch (storageErr) {
-      console.error('[Firebase] Storage başlatılamadı:', storageErr);
+  if (typeof firebase === 'undefined' || !firebase.initializeApp) {
+    console.error('[Firebase] SDK yüklenmedi (betik engellenmiş veya ağ hatası olabilir).');
+    showFirebaseInitBanner('Firebase yüklenemedi. Tarayıcıda reklam/izleme engelleyiciyi kontrol edin veya sayfayı yenileyin.');
+  } else {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    if (typeof firebase.storage === 'function') {
+      try {
+        fbStorage = firebase.storage();
+      } catch (storageErr) {
+        console.error('[Firebase] Storage başlatılamadı:', storageErr);
+      }
     }
   }
 } catch (err) {
   console.error('[Firebase] Initialization failed:', err);
-  document.addEventListener('DOMContentLoaded', () => {
-    const banner = document.createElement('div');
-    banner.style.cssText =
-      'position:fixed;top:0;left:0;right:0;z-index:9999;background:#b00020;color:#fff;padding:16px;text-align:center;font-size:14px;';
-    banner.textContent = 'Sistem bağlantısı kurulamadı. Lütfen daha sonra tekrar deneyin.';
-    document.body.appendChild(banner);
-  });
+  db = null;
+  showFirebaseInitBanner();
 }
 
 const FirebaseHelper = (() => {
@@ -54,7 +67,7 @@ const FirebaseHelper = (() => {
    */
   async function uploadCoverImage(collectionFolder, file) {
     if (!fbStorage) return { success: false, error: 'Storage kullanılamıyor (SDK eksik veya bağlantı yok).' };
-    if (!firebase.auth || !firebase.auth().currentUser) {
+    if (typeof firebase === 'undefined' || !firebase.auth || !firebase.auth().currentUser) {
       return { success: false, error: 'Görsel yüklemek için giriş yapmalısınız.' };
     }
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];

@@ -81,10 +81,35 @@ const Admin = (() => {
     return { bounds: el, scrollingContainer: el };
   }
 
+  function isDbReady() {
+    return typeof db !== 'undefined' && db !== null;
+  }
+
   /* ═══════════════ INIT ═══════════════ */
   function init() {
-    auth = firebase.auth();
+    setupLoginForm();
+    setupForgotPassword();
+    setupNavigation();
+    setupMobileMenu();
+    setupEventDelegation();
 
+    const loginErrEl = document.getElementById('login-error');
+    if (typeof firebase === 'undefined') {
+      if (loginErrEl) {
+        loginErrEl.textContent = 'Firebase yüklenemedi. Tarayıcı konsolunda (F12) ağ/CSP hatası var mı bakın; sayfayı yenileyin.';
+        loginErrEl.style.display = 'block';
+      }
+      return;
+    }
+    if (!isDbReady()) {
+      if (loginErrEl) {
+        loginErrEl.textContent = 'Veritabanı başlatılamadı. Sayfayı yenileyin veya firebase-config.js / ağ bağlantısını kontrol edin.';
+        loginErrEl.style.display = 'block';
+      }
+      return;
+    }
+
+    auth = firebase.auth();
     auth.onAuthStateChanged(user => {
       if (user) {
         document.getElementById('login-screen').classList.add('hidden');
@@ -96,12 +121,6 @@ const Admin = (() => {
         document.getElementById('admin-app').classList.add('hidden');
       }
     });
-
-    setupLoginForm();
-    setupForgotPassword();
-    setupNavigation();
-    setupMobileMenu();
-    setupEventDelegation();
   }
 
   /* ═══════════════ AUTH ═══════════════ */
@@ -111,6 +130,11 @@ const Admin = (() => {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       errEl.style.display = 'none';
+      if (!auth) {
+        errEl.textContent = 'Oturum servisi hazır değil. Sayfayı yenileyin.';
+        errEl.style.display = 'block';
+        return;
+      }
       const email = form.email.value.trim();
       const password = form.password.value;
       const btn = form.querySelector('button');
@@ -150,6 +174,11 @@ const Admin = (() => {
         emailInput.focus();
         return;
       }
+      if (!auth) {
+        errEl.textContent = 'Oturum servisi hazır değil. Sayfayı yenileyin.';
+        errEl.style.display = 'block';
+        return;
+      }
 
       btn.disabled = true;
       btn.textContent = 'Gönderiliyor...';
@@ -176,7 +205,9 @@ const Admin = (() => {
     });
   }
 
-  function logout() { auth.signOut(); }
+  function logout() {
+    if (auth) auth.signOut();
+  }
 
   function authErrorMessage(code) {
     const map = {
@@ -380,6 +411,17 @@ const Admin = (() => {
 
   /* ═══════════════ DASHBOARD ═══════════════ */
   async function loadDashboard() {
+    if (!isDbReady()) {
+      const sp = document.getElementById('stat-posts');
+      const sv = document.getElementById('stat-videos');
+      const recentEl = document.getElementById('dashboard-recent');
+      if (sp) sp.textContent = '—';
+      if (sv) sv.textContent = '—';
+      if (recentEl) {
+        recentEl.innerHTML = '<p class="text-muted text-sm">Veritabanı kullanılamıyor. Sayfayı yenileyin.</p>';
+      }
+      return;
+    }
     const [posts, videos] = await Promise.all([
       db.collection('posts').get(),
       db.collection('videos').get(),
@@ -412,6 +454,10 @@ const Admin = (() => {
   async function loadPosts() {
     const container = document.getElementById('posts-table-body');
     container.innerHTML = '<tr><td colspan="7" class="table-empty">Yükleniyor...</td></tr>';
+    if (!isDbReady()) {
+      container.innerHTML = '<tr><td colspan="7" class="table-empty" style="color:var(--color-error)">Veritabanı kullanılamıyor.</td></tr>';
+      return;
+    }
     try {
       const snap = await db.collection('posts').orderBy('createdAt', 'desc').get();
       if (snap.empty) {
@@ -508,8 +554,12 @@ const Admin = (() => {
 
     if (!title) { toast('Başlık zorunludur.', 'error'); return; }
     if (!slug) { toast('Slug zorunludur.', 'error'); return; }
+    if (!isDbReady() || typeof firebase === 'undefined') {
+      toast('Veritabanı kullanılamıyor. Sayfayı yenileyin.', 'error');
+      return;
+    }
 
-    const currentUser = auth.currentUser;
+    const currentUser = auth && auth.currentUser;
     const data = {
       title, slug, excerpt, category, tags, coverImageUrl, body, publishedAt, featured,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -541,6 +591,7 @@ const Admin = (() => {
 
   async function editPost(id) {
     editingPostId = id;
+    if (!isDbReady()) { toast('Veritabanı kullanılamıyor.', 'error'); return; }
     try {
       const doc = await db.collection('posts').doc(id).get();
       if (!doc.exists) { toast('İçerik bulunamadı.', 'error'); return; }
@@ -551,6 +602,7 @@ const Admin = (() => {
   async function deletePost(id, title) {
     const ok = await confirmAction('İçeriği Sil', `"${title}" içeriğini silmek istediğinize emin misiniz?`);
     if (!ok) return;
+    if (!isDbReady()) { toast('Veritabanı kullanılamıyor.', 'error'); return; }
     try {
       await db.collection('posts').doc(id).delete();
       if (typeof API !== 'undefined' && API.clearCache) API.clearCache();
@@ -563,6 +615,10 @@ const Admin = (() => {
   async function loadVideos() {
     const container = document.getElementById('videos-table-body');
     container.innerHTML = '<tr><td colspan="6" class="table-empty">Yükleniyor...</td></tr>';
+    if (!isDbReady()) {
+      container.innerHTML = '<tr><td colspan="6" class="table-empty" style="color:var(--color-error)">Veritabanı kullanılamıyor.</td></tr>';
+      return;
+    }
     try {
       const snap = await db.collection('videos').orderBy('createdAt', 'desc').get();
       if (snap.empty) {
@@ -687,8 +743,12 @@ const Admin = (() => {
       toast('Geçerli bir YouTube video URL\'si girin. Örn: https://youtube.com/watch?v=VIDEO_ID', 'error');
       return;
     }
+    if (!isDbReady() || typeof firebase === 'undefined') {
+      toast('Veritabanı kullanılamıyor. Sayfayı yenileyin.', 'error');
+      return;
+    }
 
-    const currentUser = auth.currentUser;
+    const currentUser = auth && auth.currentUser;
     const data = {
       title, slug, coverImageUrl, youtubeEmbed, description, publishedAt, featured,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -717,6 +777,7 @@ const Admin = (() => {
 
   async function editVideo(id) {
     editingVideoId = id;
+    if (!isDbReady()) { toast('Veritabanı kullanılamıyor.', 'error'); return; }
     try {
       const doc = await db.collection('videos').doc(id).get();
       if (!doc.exists) { toast('Video bulunamadı.', 'error'); return; }
@@ -727,6 +788,7 @@ const Admin = (() => {
   async function deleteVideo(id, title) {
     const ok = await confirmAction('Videoyu Sil', `"${title}" videosunu silmek istediğinize emin misiniz?`);
     if (!ok) return;
+    if (!isDbReady()) { toast('Veritabanı kullanılamıyor.', 'error'); return; }
     try {
       await db.collection('videos').doc(id).delete();
       toast('Video silindi.', 'success');
