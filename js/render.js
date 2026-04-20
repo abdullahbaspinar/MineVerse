@@ -187,7 +187,7 @@ const Render = (() => {
   function postCard(post, { featured = false } = {}) {
     const slug = post.slug?.current || post.slug || '';
     const el = document.createElement('article');
-    el.className = `card fade-in${featured ? ' card-featured' : ''}`;
+    el.className = `card card-post fade-in${featured ? ' card-featured' : ''}`;
 
     el.innerHTML = `
       <div class="card-img-wrap">
@@ -247,11 +247,12 @@ const Render = (() => {
 
   /* ═══════════════ SKELETON LOADERS ═══════════════ */
 
-  function skeletonCards(count = 3) {
+  function skeletonCards(count = 3, kind = 'post') {
+    const mod = kind === 'video' ? 'skeleton-card--video' : 'skeleton-card--post';
     const frag = document.createDocumentFragment();
     for (let i = 0; i < count; i++) {
       const el = document.createElement('div');
-      el.className = 'skeleton skeleton-card';
+      el.className = `skeleton skeleton-card ${mod}`;
       frag.appendChild(el);
     }
     return frag;

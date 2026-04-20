@@ -7,7 +7,7 @@ async function initVideosPage() {
   const grid = document.getElementById('videos-grid');
   if (!grid) return;
 
-  grid.appendChild(Render.skeletonCards(6));
+  grid.appendChild(Render.skeletonCards(6, 'video'));
 
   try {
     const videos = await API.getVideos(20);

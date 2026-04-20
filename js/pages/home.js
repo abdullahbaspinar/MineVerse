@@ -87,7 +87,7 @@ async function renderHomeVideos() {
   const section = document.getElementById('video-posts')?.closest('.home-section');
   const container = document.getElementById('video-posts');
   if (!container) return;
-  container.appendChild(Render.skeletonCards(3));
+  container.appendChild(Render.skeletonCards(3, 'video'));
 
   try {
     const videos = await API.getVideos(3);

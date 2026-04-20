@@ -263,7 +263,14 @@ em { font-style: italic; }
 .skeleton-text   { height: 1em; margin-bottom: var(--space-2); }
 .skeleton-title  { height: 1.5em; width: 70%; margin-bottom: var(--space-3); }
 .skeleton-img    { aspect-ratio: 16/9; width: 100%; }
-.skeleton-card   { height: 320px; }
+.skeleton-card {
+  width: 100%;
+  min-height: 120px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+.skeleton-card--post  { aspect-ratio: 1080 / 1350; height: auto; }
+.skeleton-card--video { aspect-ratio: 16 / 9; height: auto; }
 
 /* ══════════════════════════════════════════════
    Animations

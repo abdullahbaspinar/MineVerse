@@ -37,7 +37,7 @@ async function initPostDetail() {
       if (heroBg && safeImg) {
         heroBg.style.backgroundImage = `url(${CSS.escape(safeImg)})`;
         heroBg.style.backgroundSize = 'cover';
-        heroBg.style.backgroundPosition = 'center';
+        heroBg.style.backgroundPosition = 'center top';
         heroBg.classList.add('has-image');
       }
 

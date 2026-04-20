@@ -548,6 +548,9 @@ const Admin = (() => {
     if (postData) {
       form.title.value = postData.title || '';
       form.slug.value = postData.slug || '';
+      /* Eski şablonda name="excerpt" textarea varsa doldur; yoksa Quill (initQuillExcerpt) kullanılır. */
+      const excerptEl = form.elements.namedItem('excerpt');
+      if (excerptEl && 'value' in excerptEl) excerptEl.value = postData.excerpt || '';
       form.category.value = postData.category || 'news';
       form.tags.value = (postData.tags || []).join(', ');
       form.coverImageUrl.value = postData.coverImageUrl || '';
@@ -737,6 +740,8 @@ const Admin = (() => {
     if (videoData) {
       form.title.value = videoData.title || '';
       form.slug.value = videoData.slug || '';
+      const descEl = form.elements.namedItem('description');
+      if (descEl && 'value' in descEl) descEl.value = videoData.description || '';
       form.coverImageUrl.value = videoData.coverImageUrl || '';
       embedInput.value = videoData.youtubeEmbed || '';
       urlInput.value = embedToWatchUrl(videoData.youtubeEmbed);
